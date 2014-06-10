@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<refentry id="rvmb.1">
+
+<refentryinfo>
+    <title> Rapid VM builder for qemu-kvm based portable VMs</title>
+    <author>
+        <personname><firstname>Miroslav</firstname><surname>Safr</surname></personname>
+        <email>miroslav.safr@gmail.com</email>
+        <personblurb><para>Author and maintainer</para></personblurb>
+    </author>
+    <date>20140611_0757</date>
+    <productnumber></productnumber>
+    <productname>rvmb</productname>
+</refentryinfo>
+
+<refmeta>
+    <refentrytitle>rvmb</refentrytitle>
+	<manvolnum>1</manvolnum>
+</refmeta>
+
+
+<refnamediv>
+    <refname>rvmb</refname>
+    <refpurpose> Rapid VM builder for qemu-kvm based portable VMs</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+	<cmdsynopsis>
+        <command>rvmb  [COMMAND] [OPTIONS]...</command>
+        <arg choice="opt">-h --help</arg>
+        <arg choice="opt">-v --verbose</arg>
+        <arg choice="opt">-d --debug</arg>
+        <arg choice="opt">-t --target &lt;conf-file&gt;</arg>
+        <arg choice="opt">-c --clone &lt;number&gt;</arg>
+        <arg choice="opt">-m --memory &lt;kB&gt;</arg>
+        <arg choice="opt">-V --version</arg>
+	</cmdsynopsis>
+</refsynopsisdiv>
+
+  <refsect1><title>DESCRIPTION</title>
+    <para>
+     Rapid VM builder for qemu-kvm based portable VMs. As a working directory is taked current dir.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>COMMAND</title>
+    <para>
+     Specify step execution:
+         list-targets
+         prepare-host create-disk download-iso install-base customize-image
+         run-vm connect-ssh connect-xrdp
+    </para>
+    <para>
+     If not specified usign automatic detection:
+	     empty=install, 
+	     image installed=run-vm
+         running=connect-ssh
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>OPTIONS</title>
+    <variablelist>
+      <varlistentry><term>-h --help</term>
+        <listitem>
+          <para>
+            Print help text to the screen.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry><term>-v --verbosee</term>
+        <listitem>
+          <para>
+            Prints more output.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry><term>--d --debug</term>
+        <listitem>
+          <para>
+            Prints also debug output.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry><term>-t --target &lt;conf-file&gt;</term>
+        <listitem>
+          <para>
+            Select target config file. It can be a full path to the file or name of the file in targets dir (list-targets).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry><term>-c --clone &lt;number&gt;</term>
+        <listitem>
+          <para>
+            Cloning increment number (adds postfix, increases ports etc.). so there can be created more VMs from one configuration file.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry><term>-m --memory &lt;kB&gt;</term>
+        <listitem>
+          <para>
+            Uses specific VM memory amount (in kB).
+          </para>
+        </listitem>
+      </varlistentry>
+      
+     <varlistentry><term>-V --version</term>
+         <listitem>
+          <para>
+			Prints version of the scripts.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1><title>SEE ALSO</title>
+    <para>
+      <ulink url="http://safrm.net/projects/rvmb"/>
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>
+        Miroslav Šafr &lt;miroslav.safr@gmail.com&gt;
+    </para>
+  </refsect1>
+  <refsect1>
+  <title>LICENSE</title>
+      <para>
+       LGPL2
+    </para>       
+  </refsect1>
+</refentry>

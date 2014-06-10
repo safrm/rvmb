@@ -1,0 +1,6 @@
+
+NAME='Ubuntu 12.04-i386 minimal'
+ISO_URL=http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-i386/current/images/netboot/mini.iso
+HOST_SSH_PORT=8091
+DISK_SIZE=2G
+DISK_FORMAT_EXT=raw

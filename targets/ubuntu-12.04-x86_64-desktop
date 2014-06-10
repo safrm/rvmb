@@ -1,0 +1,7 @@
+
+NAME='Ubuntu 12.04-x86_64 desktop'
+ISO_URL=http://releases.ubuntu.com/12.04.4/ubuntu-12.04.4-desktop-amd64.iso
+HOST_SSH_PORT=8100
+DISK_SIZE=6G
+DISK_FORMAT_EXT=raw
+

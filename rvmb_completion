@@ -1,0 +1,22 @@
+# rvmb completion                                        -*- shell-script -*-
+
+_rvmb ()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -v -d -t -c -m -V
+            --help --verbose --debug --target --clone --memory --version' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W 'list-targets
+            prepare-host create-disk download-iso run-live-iso install-base customize-image
+            run-vm connect-ssh connect-xrdp mount-image' -- "$cur" ) )
+    fi
+
+
+
+} &&
+complete -F _rvmb rvmb
+
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,36 @@
+name: rvmb - Rapid VM builder  
+author:  Miroslav Safr <miroslav.safr@gmail.com>
+web: http://safrm.net/projects/rvmb
+description: Rapid VM builder for qemu-kvm based portable VMs
+
+
+content: 
+rvmb .................. main script
+install.sh ............ installation (from source) script
+
+Usage - full:
+#check available targets 
+$ rvmb list-targets
+
+#create and install VM
+#there can be passed own configuration file based on teplate (-t <file>)
+#or created clone of the same VM configuration (-c <number>)
+$ rvmb -t ubuntu-12.04-x86_64-mini
+
+#.. manual steps during installation
+
+#running the VM
+$ rvmb run-vm
+
+#connect running VM
+$ rvmb connect-vm-ssh
+
+
+Usage - try live iso :
+$ rvmb run-live-iso -t ubuntu-12.04-x86_64-desktop
+
+Tested targets:
+	ubuntu-12.04-i386-desktop
+	ubuntu-12.04-x86_64-desktop
+	ubuntu-12.04-x86_64-mini 
+
