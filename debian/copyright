@@ -1,0 +1,9 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: rvmb
+Upstream-Contact: Miroslav Safr <Miroslav.Safr@gmail.com>
+Source: http://safrm.net/projects/rvmb
+Copyright: Copyright 2010 Miroslav Safr <Miroslav.Safr@gmail.com>
+License: LGPL-2.1
+
+On Debian systems the full text of the GNU LGPL v2.1 can be found
+ in the `/usr/share/common-licenses/LGPL-2.1' file.

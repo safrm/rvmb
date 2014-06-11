@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>rvmb</title><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="refentry" title="rvmb"><a name="rvmb.1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>rvmb &#8212;  Rapid VM builder for qemu-kvm based portable VMs</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">rvmb  [COMMAND] [OPTIONS]...</code>  [-h --help] [-v --verbose] [-d --debug] [-t --target &lt;conf-file&gt;] [-c --clone &lt;number&gt;] [-m --memory &lt;kB&gt;] [-V --version]</p></div></div><div class="refsect1" title="DESCRIPTION"><a name="idp1860976"></a><h2>DESCRIPTION</h2><p>
+     Rapid VM builder for qemu-kvm based portable VMs. As a working directory is taked current dir.
+    </p></div><div class="refsect1" title="COMMAND"><a name="idp1538184"></a><h2>COMMAND</h2><p>
+     Specify step execution:
+         list-targets
+         prepare-host create-disk download-iso install-base customize-image
+         run-vm connect-ssh connect-xrdp
+    </p><p>
+     If not specified usign automatic detection:
+	     empty=install, 
+	     image installed=run-vm
+         running=connect-ssh
+    </p></div><div class="refsect1" title="OPTIONS"><a name="idp1817800"></a><h2>OPTIONS</h2><div class="variablelist"><dl><dt><span class="term">-h --help</span></dt><dd><p>
+            Print help text to the screen.
+          </p></dd><dt><span class="term">-v --verbosee</span></dt><dd><p>
+            Prints more output.
+          </p></dd><dt><span class="term">--d --debug</span></dt><dd><p>
+            Prints also debug output.
+          </p></dd><dt><span class="term">-t --target &lt;conf-file&gt;</span></dt><dd><p>
+            Select target config file. It can be a full path to the file or name of the file in targets dir (list-targets).
+          </p></dd><dt><span class="term">-c --clone &lt;number&gt;</span></dt><dd><p>
+            Cloning increment number (adds postfix, increases ports etc.). so there can be created more VMs from one configuration file.
+          </p></dd><dt><span class="term">-m --memory &lt;kB&gt;</span></dt><dd><p>
+            Uses specific VM memory amount (in kB).
+          </p></dd><dt><span class="term">-V --version</span></dt><dd><p>
+			Prints version of the scripts.
+          </p></dd></dl></div></div><div class="refsect1" title="SEE ALSO"><a name="idp204840"></a><h2>SEE ALSO</h2><p>
+      <a class="ulink" href="http://safrm.net/projects/rvmb" target="_top">http://safrm.net/projects/rvmb</a>
+    </p></div><div class="refsect1" title="AUTHOR"><a name="idp205600"></a><h2>AUTHOR</h2><p>
+        Miroslav &#352;afr &lt;miroslav.safr@gmail.com&gt;
+    </p></div><div class="refsect1" title="LICENSE"><a name="idp206312"></a><h2>LICENSE</h2><p>
+       LGPL2
+    </p></div></div></body></html>

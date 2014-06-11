@@ -1,0 +1,94 @@
+'\" t
+.\"     Title: rvmb
+.\"    Author: Miroslav Safr <miroslav.safr@gmail.com>
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 20140611_1602
+.\"    Manual:  Rapid VM builder for qemu-kvm based portable VMs
+.\"    Source: rvmb
+.\"  Language: English
+.\"
+.TH "RVMB" "1" "20140611_1602" "rvmb" "Rapid VM builder for qemu-kvm"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+rvmb \- Rapid VM builder for qemu\-kvm based portable VMs
+.SH "SYNOPSIS"
+.HP \w'\fBrvmb\ [COMMAND]\ [OPTIONS]\&.\&.\&.\fR\ 'u
+\fBrvmb  [COMMAND] [OPTIONS]\&.\&.\&.\fR [\-h\ \-\-help] [\-v\ \-\-verbose] [\-d\ \-\-debug] [\-t\ \-\-target\ <conf\-file>] [\-c\ \-\-clone\ <number>] [\-m\ \-\-memory\ <kB>] [\-V\ \-\-version]
+.SH "DESCRIPTION"
+.PP
+Rapid VM builder for qemu\-kvm based portable VMs\&. As a working directory is taked current dir\&.
+.SH "COMMAND"
+.PP
+Specify step execution: list\-targets prepare\-host create\-disk download\-iso install\-base customize\-image run\-vm connect\-ssh connect\-xrdp
+.PP
+If not specified usign automatic detection: empty=install, image installed=run\-vm running=connect\-ssh
+.SH "OPTIONS"
+.PP
+\-h \-\-help
+.RS 4
+Print help text to the screen\&.
+.RE
+.PP
+\-v \-\-verbosee
+.RS 4
+Prints more output\&.
+.RE
+.PP
+\-\-d \-\-debug
+.RS 4
+Prints also debug output\&.
+.RE
+.PP
+\-t \-\-target <conf\-file>
+.RS 4
+Select target config file\&. It can be a full path to the file or name of the file in targets dir (list\-targets)\&.
+.RE
+.PP
+\-c \-\-clone <number>
+.RS 4
+Cloning increment number (adds postfix, increases ports etc\&.)\&. so there can be created more VMs from one configuration file\&.
+.RE
+.PP
+\-m \-\-memory <kB>
+.RS 4
+Uses specific VM memory amount (in kB)\&.
+.RE
+.PP
+\-V \-\-version
+.RS 4
+Prints version of the scripts\&.
+.RE
+.SH "SEE ALSO"
+.PP
+
+\m[blue]\fB\%http://safrm.net/projects/rvmb\fR\m[]
+.SH "AUTHOR"
+.PP
+Miroslav Šafr <miroslav\&.safr@gmail\&.com>
+.SH "LICENSE"
+.PP
+LGPL2
+.SH "AUTHOR"
+.PP
+\fBMiroslav Safr\fR <\&miroslav\&.safr@gmail\&.com\&>
+.RS 4
+Author and maintainer
+.RE

@@ -1,0 +1,16 @@
+Source: rvmb
+Section: utils
+Priority: optional
+Maintainer: Miroslav Safr <miroslav.safr@gmail.com>
+Build-Depends: debhelper (>= 5), appver, jenkins-support-scripts (>=1.2.3)
+Standards-Version: 3.8.1
+Homepage: http://safrm.net/projects/rvmb
+
+Package: rvmb
+Architecture: all
+Depends: qemu-system-x86, qemu-utils, kvm, ${misc:Depends}, ${launcher:Depends}, ${shlibs:Depends}
+Description: Rapid VM builder for qemu-kvm based portable VMs  \ 
+	
+	
+
+
