@@ -94,7 +94,6 @@ rvmb_installation()
 {
 	rvmb_prepare
 	rvmb_create_disk
-	#rvmb_download_iso
 	rvmb_install_base_image
 	rvmb_customize_image
 }
@@ -139,7 +138,8 @@ rvmb_create_disk()
 rvmb_download_iso()
 {
 debug "Iso image url: $ISO_URL"
-if echo $ISO_URL | grep -q -e "^\(ftp\|http\|https\):.*" ; then
+#-q=no output, -i=insensitive, -e=regexp
+if echo $ISO_URL | grep -q -i -e "^\(ftp\|http\|https\):.*" ; then
 	wget -N $ISO_URL || fail "Iso file download failed "
     ISO_FILE_LOCAL="${ISO_URL##*/}"
 else
