@@ -25,7 +25,7 @@ usage() {
     echo " COMMAND ............................ specify step execution "
     echo "  list-targets"
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
-    echo "  start-vm stop-vm status"
+    echo "  start stop status"
     echo "  backup-image mount-image chroot-image"
     echo "  connect-ssh connect-vnc"
     echo " OPTIONS: "
@@ -44,7 +44,7 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start-vm | stop-vm | status | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -100,7 +100,7 @@ if [ -n "$CLONE_NO" ]; then
 fi
 MONITOR_FILE=./$DISK_NAME-running
 verbose "MONITOR_FILE=$MONITOR_FILE"
-if [ -n $VNC_FLAG ]; then
+if [ -n "$VNC_FLAG" ]; then
 	VNC_PORT=1
 	[ -n "$CLONE_NO" ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
 	VNC_PORT=:$VNC_PORT
@@ -126,7 +126,7 @@ rvmb_run_live_iso()
 	rvmb_prepare
 	rvmb_download_iso
 	echo "Runing live iso $ISO_FILE_LOCAL"
-	qemu-system-x86_64 $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+	qemu-system-x86_64 -name "live $ISO_FILE_LOCAL" $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 }
 
 #check and install host 
@@ -193,7 +193,7 @@ rvmb_install_image()
 	[ -e $ISO_FILE_LOCAL ] || fail "Iso file $ISO_FILE_LOCAL does not exist "
 	[ -e $SHARE_DIR ] || mkdir -p $SHARE_DIR
 
-	qemu-system-x86_64 $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+	qemu-system-x86_64 -name "$DISK_NAME install" $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 
 }
 
@@ -203,7 +203,7 @@ rvmb_start_vm()
 	debug "rvmb_start_vm"
 	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
 	#run
-	qemu-system-x86_64 $VNC_FLAG $VNC_PORT -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
+	qemu-system-x86_64 -name $DISK_NAME $VNC_FLAG $VNC_PORT -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
 
 	#sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
 }
@@ -283,15 +283,15 @@ case $DEFAULT_CMD in
   download-iso) rvmb_download_iso ;;
   run-live-iso) rvmb_run_live_iso ;;
   install-image) rvmb_install_image ;;
-  start-vm) rvmb_start_vm ;;
+  start) rvmb_start_vm ;;
   status) rvmb_status ;;
-  stop-vm) rvmb_stop_vm ;;
+  stop) rvmb_stop_vm ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-vnc) rvmb_connect_vm_vnc ;;
   mount-image) rvmb_mount_image ;;
   backup-image) rvmb_backup_image ;;
   chroot-image) rvmb_chroot_image ;;
-  #automatic target: empty=install, ok=start-vm, running=connect-ssh
+  #automatic target: empty=install, ok=start, running=connect-ssh
   *) 
 	if [ ! -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
 		debug "$DISK_NAME.$DISK_FORMAT_EXT does not exist"
