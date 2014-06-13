@@ -25,7 +25,7 @@ usage() {
     echo " COMMAND ............................ specify step execution "
     echo "  list-targets"
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
-    echo "  start stop status"
+    echo "  start stop status status-all"
     echo "  backup-image mount-image chroot-image"
     echo "  connect-ssh connect-vnc"
     echo " OPTIONS: "
@@ -44,7 +44,7 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | status-all | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -250,6 +250,12 @@ rvmb_status()
 	fi
 }
 
+rvmb_status_all()
+{
+	ls -1 *-running 2> /dev/null
+	echo
+	ps -AF | grep [q]emu	
+}
 
 rvmb_connect_vm_ssh()
 {
@@ -285,6 +291,7 @@ case $DEFAULT_CMD in
   install-image) rvmb_install_image ;;
   start) rvmb_start_vm ;;
   status) rvmb_status ;;
+  status-all) rvmb_status_all ;;
   stop) rvmb_stop_vm ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-vnc) rvmb_connect_vm_vnc ;;
