@@ -9,6 +9,7 @@ TARGET_FILE=$TARGET_DIR/ubuntu-12.04-x86_64-mini
 BASENAME=`basename $0`
 SHARE_DIR=./share
 MEMORY=1024
+TS=$(date +%Y_%m_%d__%H_%M)
 
 #helpers
 alias echo="/bin/echo -e"
@@ -23,8 +24,10 @@ usage() {
     echo "Usage:$BASENAME [COMMAND] [OPTIONS]..."
     echo " COMMAND ............................ specify step execution "
     echo "  list-targets"
-    echo "  prepare-host create-disk download-iso run-live-iso install-image mount-image chroot-image"
-    echo "  run-vm connect-ssh connect-xrdp mount-image"
+    echo "  prepare-host create-disk download-iso run-live-iso install-image "
+    echo "  start-vm stop-vm status"
+    echo "  backup-image mount-image chroot-image"
+    echo "  connect-ssh connect-vnc connect-xrdp"
     echo " OPTIONS: "
     echo " -h, --help ......................... shows command line help"
     echo " -v, --verbose ...................... prints more output"
@@ -39,7 +42,7 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | run-vm | connect-ssh | connect-xrdp | mount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start-vm | stop-vm | status | connect-ssh | connect-vnc | connect-xrdp | backup-image | mount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -50,8 +53,8 @@ while [ $# -gt 0 ]; do
         DEBUG_FLAG=1 ;;
     -t | --target ) shift;
         TARGET_FILE=$1 
-		if [ '${TARGET_FILE:0:1}' != '/' ]; then 
-		TARGET_FILE=$TARGET_DIR/$TARGET_FILE
+		if [ $(echo $TARGET_FILE | head -c1) != '/' -a ! -f $TARGET_FILE ]; then 
+			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
 		fi ;;
     -c | --clone ) shift;
         CLONE_NO=$1 
@@ -88,7 +91,8 @@ if [ -n "$CLONE_NO" ]; then
     HOST_SSH_PORT=$(($HOST_SSH_PORT +  $CLONE_NO)) ;
 	verbose "CLONNED MODIFICATIONS:\nDISK_NAME=$DISK_NAME\nHOST_SSH_PORT=$HOST_SSH_PORT"
 fi
-
+MONITOR_FILE=./$DISK_NAME-running
+verbose "MONITOR_FILE=$MONITOR_FILE"
 
 rvmb_installation()
 {
@@ -103,7 +107,7 @@ rvmb_run_live_iso()
 	rvmb_prepare
 	rvmb_download_iso
 	echo "Runing live iso $ISO_FILE_LOCAL"
-	qemu-system-x86_64 -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
+	qemu-system-x86_64 -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 }
 
 #check and install host 
@@ -143,7 +147,7 @@ if echo $ISO_URL | grep -q -i -e "^\(ftp\|http\|https\):.*" ; then
 	wget -N $ISO_URL || fail "Iso file download failed "
     ISO_FILE_LOCAL="${ISO_URL##*/}"
 else
-	if [ -f $ISO_URL ]; then
+	if [ -f $ISO_URL ]; then	
 		debug "Local file $ISO_URL ready"
 		ISO_FILE_LOCAL="$ISO_URL"
 	else	
@@ -161,19 +165,42 @@ rvmb_install_image()
 	[ -e $ISO_FILE_LOCAL ] || fail "Iso file $ISO_FILE_LOCAL does not exist "
 	[ -e $SHARE_DIR ] || mkdir -p $SHARE_DIR
 
-	qemu-system-x86_64  -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
+	qemu-system-x86_64  -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 
 }
 
 #run ready VM
-rvmb_run_vm() 
+rvmb_start_vm() 
 {
 	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
 	#run
-	qemu-system-x86_64 -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
+	qemu-system-x86_64 -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
 
 	#sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
 }
+
+rvmb_stop_vm()
+{
+	#using qemu
+	debug "Stopping: $MONITOR_FILE"
+	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE	
+}
+
+
+rvmb_status()
+{
+	if [ -e $MONITOR_FILE ]; then
+		echo " monitor file exits: $MONITOR_FILE"
+	else
+		echo " monitor file does not exits: $MONITOR_FILE"
+	fi
+	if [ $(pgrep $DISK_NAME.$DISK_FORMAT_EXT) ]; then
+		echo " image $DISK_NAME.$DISK_FORMAT_EXT is running"
+	else
+		echo " image $DISK_NAME.$DISK_FORMAT_EXT is not running"
+	fi
+}
+
 
 rvmb_connect_vm_ssh()
 {
@@ -186,6 +213,12 @@ rvmb_connect_vm_vnc()
 rvmb_connect_vm_xrdp()
 {
 	:
+}
+
+rvmb_backup_image()
+{
+    [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
+	tar cvjf ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2 ./$DISK_NAME.$DISK_FORMAT_EXT
 }
 
 rvmb_mount_image()
@@ -204,12 +237,16 @@ case $DEFAULT_CMD in
   download-iso) rvmb_download_iso ;;
   run-live-iso) rvmb_run_live_iso ;;
   install-image) rvmb_install_image ;;
-  run-vm) rvmb_run_vm ;;
+  start-vm) rvmb_start_vm ;;
+  status) rvmb_status ;;
+  stop-vm) rvmb_stop_vm ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-xrdp) rvmb_connect_vm_xrdp ;;
+  connect-vnc) rvmb_connect_vm_vnc ;;
   mount-image) rvmb_mount_image ;;
+  backup-image) rvmb_backup_image ;;
   chroot-image) rvmb_chroot_image ;;
-  #automatic target: empty=install, ok=run-vm, running=connect-ssh
+  #automatic target: empty=install, ok=start-vm, running=connect-ssh
   *) 
 	if [ ! -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
 		debug "$DISK_NAME.$DISK_FORMAT_EXT does not exist"
@@ -217,7 +254,7 @@ case $DEFAULT_CMD in
 	else
 		debug "$DISK_NAME.$DISK_FORMAT_EXT exists"
 		# check that runs?
-		rvmb_run_vm ;
+		rvmb_start_vm ;
 	fi
 esac
 

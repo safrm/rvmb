@@ -49,14 +49,15 @@
     <para>
      Specify step execution:
          list-targets
-         prepare-host create-disk download-iso install-image 
-		 mount-image chroot-image
-         run-vm connect-ssh connect-xrdp
+         prepare-host create-disk download-iso run-live-iso install-image
+		 start-vm stop-vm status
+         backup-image mount-image chroot-image
+		 connect-ssh connect-vnc connect-xrdp
     </para>
     <para>
      If not specified usign automatic detection:
 	     empty=install, 
-	     image installed=run-vm
+	     image installed=start-vm
          running=connect-ssh
     </para>
   </refsect1>
