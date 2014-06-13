@@ -13,7 +13,7 @@ _rvmb ()
             prepare-host create-disk download-iso run-live-iso install-image
             start-vm stop-vm status
             backup-image mount-image chroot-image
-            connect-ssh connect-vnc connect-xrdp ' -- "$cur" ) )
+            connect-ssh connect-vnc ' -- "$cur" ) )
     fi
 
 

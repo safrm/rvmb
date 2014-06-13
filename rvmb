@@ -27,7 +27,7 @@ usage() {
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
     echo "  start-vm stop-vm status"
     echo "  backup-image mount-image chroot-image"
-    echo "  connect-ssh connect-vnc connect-xrdp"
+    echo "  connect-ssh connect-vnc"
     echo " OPTIONS: "
     echo " -h, --help ......................... shows command line help"
     echo " -v, --verbose ...................... prints more output"
@@ -36,6 +36,7 @@ usage() {
     echo " -c, --clone <number> ............... cloning increment number (adds postfix, increases ports etc.)"
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
+    echo " -vnc ............................... enable vnc on display (:1 + clone)"
     echo " -V, --version  ..................... prints version of the scripts"
     echo " "
 }
@@ -43,13 +44,15 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start-vm | stop-vm | status | connect-ssh | connect-vnc | connect-xrdp | backup-image | mount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start-vm | stop-vm | status | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
 		ls -1 $TARGET_DIR ; exit 0;;
     -h | --help) 
         usage ; exit 0 ;;
+    -vnc  )	
+        VNC_FLAG=-vnc ;;
      -v|--verbose) 
         VERBOSE_FLAG=1 ;;
     -d | --debug) 
@@ -92,11 +95,17 @@ verbose "`cat $TARGET_FILE` \n"
 BASE_DISK_NAME=$DISK_NAME
 if [ -n "$CLONE_NO" ]; then
 	DISK_NAME=$DISK_NAME$CLONE_NO
-    HOST_SSH_PORT=$(($HOST_SSH_PORT +  $CLONE_NO)) ;
+    HOST_SSH_PORT=$(($HOST_SSH_PORT + $CLONE_NO)) ;
 	verbose "CLONNED MODIFICATIONS:\nDISK_NAME=$DISK_NAME\nHOST_SSH_PORT=$HOST_SSH_PORT"
 fi
 MONITOR_FILE=./$DISK_NAME-running
 verbose "MONITOR_FILE=$MONITOR_FILE"
+if [ -n $VNC_FLAG ]; then
+	VNC_PORT=1
+	[ -n "$CLONE_NO" ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
+	VNC_PORT=:$VNC_PORT
+	echo "VNC OPTIONS: $VNC_FLAG $VNC_PORT"
+fi
 
 rvmb_installation()
 {
@@ -117,7 +126,7 @@ rvmb_run_live_iso()
 	rvmb_prepare
 	rvmb_download_iso
 	echo "Runing live iso $ISO_FILE_LOCAL"
-	qemu-system-x86_64 -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+	qemu-system-x86_64 $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 }
 
 #check and install host 
@@ -184,7 +193,7 @@ rvmb_install_image()
 	[ -e $ISO_FILE_LOCAL ] || fail "Iso file $ISO_FILE_LOCAL does not exist "
 	[ -e $SHARE_DIR ] || mkdir -p $SHARE_DIR
 
-	qemu-system-x86_64  -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+	qemu-system-x86_64 $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 
 }
 
@@ -194,7 +203,7 @@ rvmb_start_vm()
 	debug "rvmb_start_vm"
 	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
 	#run
-	qemu-system-x86_64 -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
+	qemu-system-x86_64 $VNC_FLAG $VNC_PORT -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
 
 	#sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
 }
@@ -249,11 +258,7 @@ rvmb_connect_vm_ssh()
 }
 rvmb_connect_vm_vnc()
 {
-	:
-}
-rvmb_connect_vm_xrdp()
-{
-	:
+	vncviewer -via $USER@localhost  localhost$VNC_PORT
 }
 
 rvmb_backup_image()
@@ -282,7 +287,6 @@ case $DEFAULT_CMD in
   status) rvmb_status ;;
   stop-vm) rvmb_stop_vm ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
-  connect-xrdp) rvmb_connect_vm_xrdp ;;
   connect-vnc) rvmb_connect_vm_vnc ;;
   mount-image) rvmb_mount_image ;;
   backup-image) rvmb_backup_image ;;
