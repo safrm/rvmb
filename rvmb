@@ -26,7 +26,7 @@ usage() {
     echo "  list-targets"
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
     echo "  start stop status status-all kill-all"
-    echo "  backup-image mount-image chroot-image"
+    echo "  backup-image mount-image umount-image chroot-image"
     echo "  connect-ssh connect-vnc"
     echo " OPTIONS: "
     echo " -h, --help ......................... shows command line help"
@@ -44,7 +44,7 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | status-all | kill-all | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | status-all | kill-all | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -213,10 +213,12 @@ rvmb_stop_vm()
 	debug "rvmb_stop_vm"
 	#using qemu
 	debug "Stopping: $MONITOR_FILE"
-	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE	
+	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE
+	sleep 5;	
+	echo 'quit' | socat - UNIX-CONNECT:$MONITOR_FILE	
 	if [ -n "$MONITOR_FILE" -a -e $MONITOR_FILE ]; then
-		echo " monitor file exits: $MONITOR_FILE"
-		#rm "$MONITOR_FILE"
+		echo " monitor file exits: $MONITOR_FILE, removing file.."
+		rm "$MONITOR_FILE"
 	fi
 }
 
@@ -228,6 +230,7 @@ rvmb_status()
 	if [ -e $MONITOR_FILE ]; then
 		verbose " monitor file exits: $MONITOR_FILE"
 		RUNNING=1
+		echo 'info status ' | socat - UNIX-CONNECT:$MONITOR_FILE	
 	else
 		verbose " monitor file does not exits: $MONITOR_FILE"
 		RUNNING_PROBLEM="monitor file does not exits "
@@ -294,8 +297,22 @@ rvmb_backup_image()
 
 rvmb_mount_image()
 {
-	:
+	MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
+	[ -d $MOUNT_DIR ] || mkdir $MOUNT_DIR
+	sudo mount -o loop,offset=$((512*2048)) ./$DISK_NAME.$DISK_FORMAT_EXT $MOUNT_DIR -t ext4 && echo "mounted ok"
 }
+
+rvmb_umount_image()
+{
+	MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
+	MOUNTED=`mount |  grep "$DISK_NAME.$DISK_FORMAT_EXT-mount "`
+	if [ -n "$MOUNTED" ]; then
+		sudo umount $MOUNT_DIR && echo "unmounted ok"
+	else
+		echo "Image:./$DISK_NAME.$DISK_FORMAT_EXT is not mounted"
+	fi
+}
+
 
 rvmb_chroot_image()
 {
@@ -316,6 +333,7 @@ case $DEFAULT_CMD in
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-vnc) rvmb_connect_vm_vnc ;;
   mount-image) rvmb_mount_image ;;
+  umount-image) rvmb_umount_image ;;
   backup-image) rvmb_backup_image ;;
   chroot-image) rvmb_chroot_image ;;
   #automatic target: empty=install, ok=start, running=connect-ssh
