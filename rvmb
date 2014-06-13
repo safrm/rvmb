@@ -298,16 +298,26 @@ rvmb_backup_image()
 rvmb_mount_image()
 {
 	MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
-	[ -d $MOUNT_DIR ] || mkdir $MOUNT_DIR
-	sudo mount -o loop,offset=$((512*2048)) ./$DISK_NAME.$DISK_FORMAT_EXT $MOUNT_DIR -t ext4 && echo "mounted ok"
+	MOUNTED=`mount |  grep "$DISK_NAME.$DISK_FORMAT_EXT-mount "`
+	if [ -z "$MOUNTED" ]; then
+		[ -d $MOUNT_DIR ] || mkdir $MOUNT_DIR
+		sudo mount -o loop,offset=$((512*2048)) ./$DISK_NAME.$DISK_FORMAT_EXT $MOUNT_DIR -t ext4 && echo "mounted ok"
+	else 
+		verbose "already mounted to $DISK_NAME.$DISK_FORMAT_EXT-mount"
+	fi
 }
 
 rvmb_umount_image()
 {
 	MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
-	MOUNTED=`mount |  grep "$DISK_NAME.$DISK_FORMAT_EXT-mount "`
+	MOUNTED=`mount |  grep "$MOUNT_DIR "`
 	if [ -n "$MOUNTED" ]; then
-		sudo umount $MOUNT_DIR && echo "unmounted ok"
+		MOUNTEDPROC=`mount |  grep "$MOUNT_DIR/proc "`
+		if [ -n "$MOUNTEDPROC" ]; then
+			sudo umount $MOUNT_DIR/proc && echo "proc unmounted ok"	
+			sleep 1
+		fi
+		sudo umount $MOUNT_DIR && echo "unmounted image ok"
 	else
 		echo "Image:./$DISK_NAME.$DISK_FORMAT_EXT is not mounted"
 	fi
@@ -316,7 +326,9 @@ rvmb_umount_image()
 
 rvmb_chroot_image()
 {
-	:
+	rvmb_mount_image
+	sudo mount --bind /proc $MOUNT_DIR/proc
+	sudo chroot $MOUNT_DIR su -c sh root
 }
 
 case $DEFAULT_CMD in
