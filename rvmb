@@ -89,6 +89,7 @@ echo "Using target configuration from $TARGET_FILE for $NAME"
 verbose "`cat $TARGET_FILE` \n" 
 
 #fixes for clonned environments
+BASE_DISK_NAME=$DISK_NAME
 if [ -n "$CLONE_NO" ]; then
 	DISK_NAME=$DISK_NAME$CLONE_NO
     HOST_SSH_PORT=$(($HOST_SSH_PORT +  $CLONE_NO)) ;
@@ -99,14 +100,20 @@ verbose "MONITOR_FILE=$MONITOR_FILE"
 
 rvmb_installation()
 {
+	debug "rvmb_installation:"
 	rvmb_prepare
 	rvmb_create_disk
-	rvmb_install_image
-	rvmb_customize_image
+	#we run it straight
+	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a -n $CLONE_NO ]; then
+		rvmb_start_vm
+	else
+		rvmb_install_image
+	fi
 }
 
 rvmb_run_live_iso() 
 {
+	debug "rvmb_run_live_iso:"
 	rvmb_prepare
 	rvmb_download_iso
 	echo "Runing live iso $ISO_FILE_LOCAL"
@@ -116,6 +123,7 @@ rvmb_run_live_iso()
 #check and install host 
 rvmb_prepare()
 {
+	debug "rvmb_prepare:"
 	REQUIRED_PACKAGES="qemu-system-x86 qemu-utils kvm "
 	dpkg-query -l $REQUIRED_PACKAGES > /dev/null
 	if [ $? != 0 ]; then
@@ -125,6 +133,7 @@ rvmb_prepare()
 
 rvmb_create_disk()
 {
+	debug "rvmb_create_disk:"
 	if [ -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
 		echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists, Do you want to overwrite it Y/n ?"
 		while true
@@ -138,13 +147,19 @@ rvmb_create_disk()
 		    esac
 	    done
 	fi
-	debug "Creating image: $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
-	qemu-img create -f $DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE || fail "Image creation failed"
+	#clone or create
+	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a -n $CLONE_NO ]; then
+		verbose "Copying image: $BASE_DISK_NAME.$DISK_FORMAT_EXT to $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
+		cp -f $BASE_DISK_NAME.$DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT 
+	else
+		verbose "Creating image: $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
+		qemu-img create -f $DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE || fail "Image creation failed"
+	fi
 }
 
 rvmb_download_iso()
 {
-debug "Iso image url: $ISO_URL"
+debug "rvmb_download_iso: Iso image url: $ISO_URL"
 #-q=no output, -i=insensitive, -e=regexp
 if echo $ISO_URL | grep -q -i -e "^\(ftp\|http\|https\):.*" ; then
 	wget -N $ISO_URL || fail "Iso file download failed "
@@ -162,6 +177,7 @@ fi
 
 rvmb_install_image()
 {
+	debug "rvmb_install_image:"
 	rvmb_download_iso
 	debug "image:./$DISK_NAME.$DISK_FORMAT_EXT iso:	$ISO_FILE_LOCAL"
 	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
@@ -175,6 +191,7 @@ rvmb_install_image()
 #run ready VM
 rvmb_start_vm() 
 {
+	debug "rvmb_start_vm"
 	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
 	#run
 	qemu-system-x86_64 -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
@@ -184,6 +201,7 @@ rvmb_start_vm()
 
 rvmb_stop_vm()
 {
+	debug "rvmb_stop_vm"
 	#using qemu
 	debug "Stopping: $MONITOR_FILE"
 	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE	
@@ -196,7 +214,8 @@ rvmb_stop_vm()
 
 rvmb_status()
 {
-RUNNING=0
+	debug "rvmb_status"
+	RUNNING=0
 	if [ -e $MONITOR_FILE ]; then
 		verbose " monitor file exits: $MONITOR_FILE"
 		RUNNING=1
