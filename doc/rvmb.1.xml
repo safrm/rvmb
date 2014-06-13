@@ -49,7 +49,8 @@
     <para>
      Specify step execution:
          list-targets
-         prepare-host create-disk download-iso install-base customize-image
+         prepare-host create-disk download-iso install-image 
+		 mount-image chroot-image
          run-vm connect-ssh connect-xrdp
     </para>
     <para>

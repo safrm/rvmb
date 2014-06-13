@@ -23,7 +23,7 @@ usage() {
     echo "Usage:$BASENAME [COMMAND] [OPTIONS]..."
     echo " COMMAND ............................ specify step execution "
     echo "  list-targets"
-    echo "  prepare-host create-disk download-iso run-live-iso install-base customize-image"
+    echo "  prepare-host create-disk download-iso run-live-iso install-image mount-image chroot-image"
     echo "  run-vm connect-ssh connect-xrdp mount-image"
     echo " OPTIONS: "
     echo " -h, --help ......................... shows command line help"
@@ -39,7 +39,7 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-base | customize-image | run-vm | connect-ssh | connect-xrdp | mount-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | run-vm | connect-ssh | connect-xrdp | mount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -94,7 +94,7 @@ rvmb_installation()
 {
 	rvmb_prepare
 	rvmb_create_disk
-	rvmb_install_base_image
+	rvmb_install_image
 	rvmb_customize_image
 }
 
@@ -153,7 +153,7 @@ fi
 
 }
 
-rvmb_install_base_image()
+rvmb_install_image()
 {
 	rvmb_download_iso
 	debug "image:./$DISK_NAME.$DISK_FORMAT_EXT iso:	$ISO_FILE_LOCAL"
@@ -163,11 +163,6 @@ rvmb_install_base_image()
 
 	qemu-system-x86_64  -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare
 
-}
-
-rvmb_customize_image()
-{
-	:
 }
 
 #run ready VM
@@ -198,17 +193,22 @@ rvmb_mount_image()
 	:
 }
 
+rvmb_chroot_image()
+{
+	:
+}
+
 case $DEFAULT_CMD in
   prepare-host) rvmb_prepare ;;
   create-disk) rvmb_create_disk ;;
   download-iso) rvmb_download_iso ;;
   run-live-iso) rvmb_run_live_iso ;;
-  install-base) rvmb_install_base_image ;;
-  customize-image) rvmb_customize_image ;;
+  install-image) rvmb_install_image ;;
   run-vm) rvmb_run_vm ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-xrdp) rvmb_connect_vm_xrdp ;;
   mount-image) rvmb_mount_image ;;
+  chroot-image) rvmb_chroot_image ;;
   #automatic target: empty=install, ok=run-vm, running=connect-ssh
   *) 
 	if [ ! -e $DISK_NAME.$DISK_FORMAT_EXT ]; then

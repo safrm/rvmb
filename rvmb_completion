@@ -10,7 +10,7 @@ _rvmb ()
             --help --verbose --debug --target --clone --memory --version' -- "$cur" ) )
     else
         COMPREPLY=( $( compgen -W 'list-targets
-            prepare-host create-disk download-iso run-live-iso install-base customize-image
+            prepare-host create-disk download-iso run-live-iso install-image
             run-vm connect-ssh connect-xrdp mount-image' -- "$cur" ) )
     fi
 
