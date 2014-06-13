@@ -35,6 +35,7 @@ usage() {
     echo " -t, --target <conf-file> ........... target config file path"
     echo " -c, --clone <number> ............... cloning increment number (adds postfix, increases ports etc.)"
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
+    echo " -u, --user <VM-user> ............... uses own VM user (default user)"
     echo " -V, --version  ..................... prints version of the scripts"
     echo " "
 }
@@ -49,6 +50,8 @@ while [ $# -gt 0 ]; do
 		ls -1 $TARGET_DIR ; exit 0;;
     -h | --help) 
         usage ; exit 0 ;;
+     -v|--verbose) 
+        VERBOSE_FLAG=1 ;;
     -d | --debug) 
         DEBUG_FLAG=1 ;;
     -t | --target ) shift;
@@ -70,8 +73,8 @@ while [ $# -gt 0 ]; do
 		else
 			fail "$MEMORY is not valid number" 
 		fi ;;
-     -v|--verbose) 
-        VERBOSE_FLAG=1 ;;
+    -u | --user ) shift;
+        VMUSER=$1 ;;
     * )      
         fail "unknown argument $1"  ;;
   esac
@@ -184,27 +187,46 @@ rvmb_stop_vm()
 	#using qemu
 	debug "Stopping: $MONITOR_FILE"
 	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE	
+	if [ -n "$MONITOR_FILE" -a -e $MONITOR_FILE ]; then
+		echo " monitor file exits: $MONITOR_FILE, removing it.."
+		rm "$MONITOR_FILE"
+	fi
 }
 
 
 rvmb_status()
 {
+RUNNING=0
 	if [ -e $MONITOR_FILE ]; then
-		echo " monitor file exits: $MONITOR_FILE"
+		verbose " monitor file exits: $MONITOR_FILE"
+		RUNNING=1
 	else
-		echo " monitor file does not exits: $MONITOR_FILE"
+		verbose " monitor file does not exits: $MONITOR_FILE"
+		RUNNING_PROBLEM="monitor file does not exits "
 	fi
 	if [ $(pgrep $DISK_NAME.$DISK_FORMAT_EXT) ]; then
-		echo " image $DISK_NAME.$DISK_FORMAT_EXT is running"
+		verbose " image $DISK_NAME.$DISK_FORMAT_EXT is running"
+		RUNNING=1
 	else
-		echo " image $DISK_NAME.$DISK_FORMAT_EXT is not running"
+		verbose " image $DISK_NAME.$DISK_FORMAT_EXT is not running"
+		RUNNING_PROBLEM="${RUNNING_PROBLEM}process with image is not running"
+	fi
+	if [ $RUNNING -eq 1 ]; then
+		echo "running"
+		if [ -n "$RUNNING_PROBLEM" ]; then
+			echo "$RUNNING_PROBLEM"
+			exit 1;
+		fi
+	else
+		echo "not running"
 	fi
 }
 
 
 rvmb_connect_vm_ssh()
 {
-	ssh -X user@localhost -p $SSH_PORT 
+	verbose "VMUSER:$VMUSER PORT:$HOST_SSH_PORT"
+	ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 }
 rvmb_connect_vm_vnc()
 {
