@@ -25,7 +25,7 @@ usage() {
     echo " COMMAND ............................ specify step execution "
     echo "  list-targets"
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
-    echo "  start stop status status-all"
+    echo "  start stop status status-all kill-all"
     echo "  backup-image mount-image chroot-image"
     echo "  connect-ssh connect-vnc"
     echo " OPTIONS: "
@@ -44,7 +44,7 @@ usage() {
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | status-all | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | status-all | kill-all | connect-ssh | connect-vnc | backup-image | mount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -215,8 +215,8 @@ rvmb_stop_vm()
 	debug "Stopping: $MONITOR_FILE"
 	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE	
 	if [ -n "$MONITOR_FILE" -a -e $MONITOR_FILE ]; then
-		echo " monitor file exits: $MONITOR_FILE, removing it.."
-		rm "$MONITOR_FILE"
+		echo " monitor file exits: $MONITOR_FILE"
+		#rm "$MONITOR_FILE"
 	fi
 }
 
@@ -232,7 +232,7 @@ rvmb_status()
 		verbose " monitor file does not exits: $MONITOR_FILE"
 		RUNNING_PROBLEM="monitor file does not exits "
 	fi
-	if [ $(pgrep $DISK_NAME.$DISK_FORMAT_EXT) ]; then
+	if [ $(pgrep -f $DISK_NAME.$DISK_FORMAT_EXT) ]; then
 		verbose " image $DISK_NAME.$DISK_FORMAT_EXT is running"
 		RUNNING=1
 	else
@@ -252,9 +252,28 @@ rvmb_status()
 
 rvmb_status_all()
 {
-	ls -1 *-running 2> /dev/null
+	debug "rvmb_status_all"
+	ls -1 ./*-running 2> /dev/null
 	echo
 	ps -AF | grep [q]emu	
+}
+
+rvmb_kill_all()
+{
+	debug "rvmb_kill_all"	
+	rm -fr ./*-running 
+	echo
+	QEMUPIDS=`pgrep [q]emu` 
+	if [ -n "$QEMUPIDS" ]; then
+		echo "killing: $QEMUPIDS"
+		for QEMUPID in "${QEMUPIDS}"
+		do
+				debug "kill $QEMUPID"
+			    kill $QEMUPID
+		done
+	else 	
+		echo "no qemu processes running"
+	fi
 }
 
 rvmb_connect_vm_ssh()
@@ -293,6 +312,7 @@ case $DEFAULT_CMD in
   status) rvmb_status ;;
   status-all) rvmb_status_all ;;
   stop) rvmb_stop_vm ;;
+  kill-all) rvmb_kill_all ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-vnc) rvmb_connect_vm_vnc ;;
   mount-image) rvmb_mount_image ;;
