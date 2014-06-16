@@ -3,7 +3,7 @@
 #author: Miroslav Safr <miroslav.safr@gmail.com> 
 BINDIR=/usr/bin
 COMPLETION_DIR=/etc/bash_completion.d
-SHAREDIR=/usr/share
+SYSCONFDIR=/etc
 MANDIR=/usr/share/man
 
 #root check
@@ -35,8 +35,8 @@ sed -i".bkp" "1,/^VERSION_DATE=/s/^VERSION_DATE=.*/VERSION_DATE=$APP_BUILD_DATE/
 
 
 TARGETS=`find ./targets -type f`
-mkdir -p -m 0755 $SHAREDIR/rvmb/targets
-install -m 755 $TARGETS $SHAREDIR/rvmb/targets
+mkdir -p -m 0755 $SYSCONFDIR/rvmb/targets
+install -m 755 $TARGETS $SYSCONFDIR/rvmb/targets
 
 mkdir -p -m 0755 $COMPLETION_DIR
 install -m 0777 -v ./rvmb_completion  $COMPLETION_DIR/

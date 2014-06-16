@@ -27,11 +27,10 @@
 
 <refsynopsisdiv>
 	<cmdsynopsis>
-        <command>rvmb  [COMMAND] [OPTIONS]...</command>
+        <command>rvmb [COMMAND] [TARGET-FILE] [OPTIONS]...</command>
         <arg choice="opt">-h --help</arg>
         <arg choice="opt">-v --verbose</arg>
         <arg choice="opt">-d --debug</arg>
-        <arg choice="opt">-t --target &lt;conf-file&gt;</arg>
         <arg choice="opt">-c --clone &lt;number&gt;</arg>
         <arg choice="opt">-m --memory &lt;kB&gt;</arg>
         <arg choice="opt">-V --version</arg>
@@ -88,14 +87,6 @@
           </para>
         </listitem>
       </varlistentry>
-      
-      <varlistentry><term>-t --target &lt;conf-file&gt;</term>
-        <listitem>
-          <para>
-            Select target config file. It can be a full path to the file or name of the file in targets dir (list-targets).
-          </para>
-        </listitem>
-      </varlistentry>
 
       <varlistentry><term>-c --clone &lt;number&gt;</term>
         <listitem>
@@ -121,6 +112,14 @@
         </listitem>
       </varlistentry>
     </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>TARGET-FILE</title>
+    <para>
+      Select target config file. It can be a full path to the file or name of the file in targets dir (list-targets).
+	  Searching directories are ./targets and /etc/rvmb/targets 
+    </para>
   </refsect1>
 
   <refsect1><title>SEE ALSO</title>

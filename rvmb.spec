@@ -32,7 +32,7 @@ install -m 755 ./rvmb %{buildroot}%{_bindir}
 sed -i".bkp" "1,/^VERSION=/s/^VERSION=.*/VERSION=%{version}/" %{buildroot}%{_bindir}/rvmb && rm -f %{buildroot}%{_bindir}/rvmb.bkp
 sed -i".bkp" "1,/^VERSION_DATE=/s/^VERSION_DATE=.*/VERSION_DATE=%{APP_BUILD_DATE}/" %{buildroot}%{_bindir}/rvmb && rm -f %{buildroot}%{_bindir}/rvmb.bkp
 TARGETS=`find ./targets -type f`
-install -m 755 $TARGETS %{buildroot}%{_datadir}/rvmb/targets
+install -m 755 $TARGETS %{buildroot}%{_sysconfdir}/rvmb/targets
 
 mkdir -p %{buildroot}%{_mandir}/man1
 install -m 644 ./doc/manpages/rvmb.1* %{buildroot}%{_mandir}/man1/
@@ -54,7 +54,7 @@ done
 %defattr(-,root,root,-)
 %{_bindir}/rvmb
 %dir %{_datadir}/rvmb/targets
-%{_datadir}/rvmb/targets/*
+%{_sysconfdir}/rvmb/targets/*
 
 %{_mandir}/man1/rvmb.1*
 

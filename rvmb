@@ -4,8 +4,8 @@
 VERSION=NA
 VERSION_DATE=NA
 
-TARGET_DIR=/usr/share/rvmb/targets
-TARGET_FILE=$TARGET_DIR/ubuntu-12.04-x86_64-mini
+TARGET_DIR=/etc/rvmb/targets
+TARGET_FILE=
 BASENAME=`basename $0`
 SHARE_DIR=./share
 MEMORY=1024
@@ -21,9 +21,9 @@ fail() { log "\nERROR: $*\n" ; exit 1 ; }
 usage() {
     echo "$BASENAME ${VERSION} - Rapid VM builder for qemu-kvm"
     echo " http://safrm.net/projects/rvmo/"
-    echo "Usage:$BASENAME [COMMAND] [OPTIONS]..."
+    echo "Usage:$BASENAME [COMMAND] [TARGET-FILE] [OPTIONS]..."
     echo " COMMAND ............................ specify step execution "
-    echo "  list-targets list-images"
+    echo "  list-targets list-images show-target "
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
     echo "  start stop status status-all kill-all"
     echo "  backup-image mount-image umount-image chroot-image"
@@ -32,25 +32,58 @@ usage() {
     echo " -h, --help ......................... shows command line help"
     echo " -v, --verbose ...................... prints more output"
     echo " -d, --debug ........................ enable debug"
-    echo " -t, --target <conf-file> ........... target config file path"
     echo " -c, --clone <number> ............... cloning increment number (adds postfix, increases ports etc.)"
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
     echo " -vnc ............................... enable vnc on display (:1 + clone)"
     echo " -V, --version  ..................... prints version of the scripts"
+	echo " TARGET-FILE ........................ target config file name or full path,"
+    echo "                                      targets files are in /etc/rvmb/targets or ./targets"
     echo " "
+}
+
+rvmb_status_all()
+{
+	ls -1 ./*-running 2> /dev/null
+	echo
+	ps -AF | grep [q]emu	
+}
+
+rvmb_kill_all()
+{
+	debug "rvmb_kill_all"	
+	rm -fr ./*-running 
+	echo
+	QEMUPIDS=`pgrep [q]emu` 
+	if [ -n "$QEMUPIDS" ]; then
+		echo "killing: $QEMUPIDS"
+		for QEMUPID in "${QEMUPIDS}"
+		do
+				debug "kill $QEMUPID"
+			    kill $QEMUPID
+		done
+	else 	
+		echo "no qemu processes running"
+	fi
 }
 
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | status-all | kill-all | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
-		ls -1 $TARGET_DIR ; exit 0;;
+		if [ -e ./targets ]; then
+			echo "`pwd`/targets: " ; ls -1 ./targets 2> /dev/null ;
+			echo 
+		fi
+		echo "$TARGET_DIR: "; ls -1 $TARGET_DIR ; exit 0;;
 	list-images )
 		ls -1 *.raw *.img *.qcow 2>/dev/null ; exit 0;;
+	show-target) VERBOSE_FLAG=1 ; DEFAULT_CMD=$1 ;;
+    status-all) rvmb_status_all ; exit ;;
+    kill-all) rvmb_kill_all ; exit ;;
     -h | --help) 
         usage ; exit 0 ;;
     -vnc  )	
@@ -59,19 +92,6 @@ while [ $# -gt 0 ]; do
         VERBOSE_FLAG=1 ;;
     -d | --debug) 
         DEBUG_FLAG=1 ;;
-    -t | --target ) shift;
-        TARGET_FILE=$1 
-		if [ $(echo $TARGET_FILE | head -c1) != '/' -a ! -f $TARGET_FILE ]; then 
-			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
-		#local file first
-		elif [ -f ./$TARGET_FILE ]; then
-	        TARGET_FILE=./$TARGET_FILE
-		#targets file second
-		elif [ -f $TARGET_DIR/$TARGET_FILE ]; then 
-			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
-		else 
-			fail "Not valid target name: $TARGET_FILE" 
-		fi ;;
     -c | --clone ) shift;
         CLONE_NO=$1 
 		if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then
@@ -89,13 +109,25 @@ while [ $# -gt 0 ]; do
     -u | --user ) shift;
         VMUSER=$1 ;;
     * )      
-        fail "unknown argument $1"  ;;
+		[ -n "$TARGET_FILE" ] && fail "Target can be only one ($TARGET_FILE)"
+        TARGET_FILE=$1 
+		if [ $(echo $TARGET_FILE | head -c1) = '/' -a -f $TARGET_FILE ]; then 
+			:
+		#local file first
+		elif [ -f ./targets/$TARGET_FILE ]; then
+	        TARGET_FILE=./targets/$TARGET_FILE
+		#targets file second
+		elif [ -f $TARGET_DIR/$TARGET_FILE ]; then 
+			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
+		else 
+			fail "Not valid target name: $TARGET_FILE, try rvmb list-targets" 
+		fi ;;
   esac
   shift
 done
 
 #read configuration
-[ -f "$TARGET_FILE" ] && debug "file exists $TARGET_FILE" || fail "Configuration file $TARGET_FILE does not exist"
+[ -f "$TARGET_FILE" ] && debug "file exists $TARGET_FILE" || fail "Target configuration file $TARGET_FILE does not exist"
 . $TARGET_FILE
 DISK_NAME=`basename $TARGET_FILE`
 echo "Using target configuration from $TARGET_FILE for $NAME"
@@ -116,6 +148,11 @@ if [ -n "$VNC_FLAG" ]; then
 	VNC_PORT=:$VNC_PORT
 	echo "VNC OPTIONS: $VNC_FLAG $VNC_PORT"
 fi
+
+rvmb_show_target()
+{
+	exit 0;
+}
 
 rvmb_installation()
 {
@@ -263,31 +300,6 @@ rvmb_status()
 	fi
 }
 
-rvmb_status_all()
-{
-	debug "rvmb_status_all"
-	ls -1 ./*-running 2> /dev/null
-	echo
-	ps -AF | grep [q]emu	
-}
-
-rvmb_kill_all()
-{
-	debug "rvmb_kill_all"	
-	rm -fr ./*-running 
-	echo
-	QEMUPIDS=`pgrep [q]emu` 
-	if [ -n "$QEMUPIDS" ]; then
-		echo "killing: $QEMUPIDS"
-		for QEMUPID in "${QEMUPIDS}"
-		do
-				debug "kill $QEMUPID"
-			    kill $QEMUPID
-		done
-	else 	
-		echo "no qemu processes running"
-	fi
-}
 
 rvmb_connect_vm_ssh()
 {
@@ -342,6 +354,7 @@ rvmb_chroot_image()
 }
 
 case $DEFAULT_CMD in
+  show-target) rvmb_show_target ;;
   prepare-host) rvmb_prepare ;;
   create-disk) rvmb_create_disk ;;
   download-iso) rvmb_download_iso ;;
@@ -349,9 +362,7 @@ case $DEFAULT_CMD in
   install-image) rvmb_install_image ;;
   start) rvmb_start_vm ;;
   status) rvmb_status ;;
-  status-all) rvmb_status_all ;;
   stop) rvmb_stop_vm ;;
-  kill-all) rvmb_kill_all ;;
   connect-ssh) rvmb_connect_vm_ssh ;;
   connect-vnc) rvmb_connect_vm_vnc ;;
   mount-image) rvmb_mount_image ;;

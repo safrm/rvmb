@@ -2,21 +2,39 @@
 
 _rvmb ()
 {
-    local cur prev words cword
+    local cur prev words cword cmd= target=
     _init_completion || return
 
+	cmds="list-targets list-images show-target 
+          prepare-host create-disk download-iso run-live-iso install-image
+          start stop status status-all kill-all
+          backup-image mount-image umount-image chroot-image
+          connect-ssh connect-vnc"
+    options="-h -v -d -c -m -V
+            --help --verbose --debug --clone --memory --version" 
+
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-h -v -d -t -c -m -V
-            --help --verbose --debug --target --clone --memory --version' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "$options"  -- "$cur" ) )
+    #first command
+    elif [[ $COMP_CWORD == 1 ]]; then
+		COMPREPLY=( $( compgen -W "$cmds" -- $cur ) )
     else
-        COMPREPLY=( $( compgen -W 'list-targets list-images
-            prepare-host create-disk download-iso run-live-iso install-image
-            start stop status status-all
-            backup-image mount-image umount-image chroot-image
-            connect-ssh connect-vnc ' -- "$cur" ) )
+
+        case "${COMP_WORDS[1]}" in
+           list-targets | list-images | prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | backup-image | mount-image |  umount-image | chroot-image | connect-ssh | connect-vnc )
+            if [[ $COMP_CWORD == 2 ]]; then
+                conns=$(ls -1 --file-type --color=none /etc/rvmb/targets ./targets 2> /dev/null | grep -v '/'  )
+                COMPREPLY=( $(compgen -W "$conns" $cur) )
+            else
+                COMPREPLY=( $( compgen -W '-v -d -c -m --verbose --debug --clone --memory' -- "$cur" ) ) 
+            fi ;;
+           show-target )
+                conns=$(ls -1 --file-type --color=none /etc/rvmb/targets ./targets 2> /dev/null | grep -v '/'  ) 
+                COMPREPLY=( $(compgen -W "$conns" $cur) ) ;;
+           status-all | kill-all )
+               return 0 ;;
+        esac
     fi
-
-
 
 } &&
 complete -F _rvmb rvmb
