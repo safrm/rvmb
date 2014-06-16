@@ -48,7 +48,7 @@
     <title>COMMAND</title>
     <para>
      Specify step execution:
-         list-targets
+         list-targets list-images
          prepare-host create-disk download-iso run-live-iso install-image
 		 start stop status status-all
          backup-image mount-image umount-image chroot-image

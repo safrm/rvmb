@@ -9,7 +9,7 @@ _rvmb ()
         COMPREPLY=( $( compgen -W '-h -v -d -t -c -m -V
             --help --verbose --debug --target --clone --memory --version' -- "$cur" ) )
     else
-        COMPREPLY=( $( compgen -W 'list-targets
+        COMPREPLY=( $( compgen -W 'list-targets list-images
             prepare-host create-disk download-iso run-live-iso install-image
             start stop status status-all
             backup-image mount-image umount-image chroot-image

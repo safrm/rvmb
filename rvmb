@@ -23,7 +23,7 @@ usage() {
     echo " http://safrm.net/projects/rvmo/"
     echo "Usage:$BASENAME [COMMAND] [OPTIONS]..."
     echo " COMMAND ............................ specify step execution "
-    echo "  list-targets"
+    echo "  list-targets list-images"
     echo "  prepare-host create-disk download-iso run-live-iso install-image "
     echo "  start stop status status-all kill-all"
     echo "  backup-image mount-image umount-image chroot-image"
@@ -49,6 +49,8 @@ while [ $# -gt 0 ]; do
 	DEFAULT_CMD=$1 ;;
     list-targets )
 		ls -1 $TARGET_DIR ; exit 0;;
+	list-images )
+		ls -1 *.raw *.img *.qcow 2>/dev/null ; exit 0;;
     -h | --help) 
         usage ; exit 0 ;;
     -vnc  )	
@@ -61,6 +63,14 @@ while [ $# -gt 0 ]; do
         TARGET_FILE=$1 
 		if [ $(echo $TARGET_FILE | head -c1) != '/' -a ! -f $TARGET_FILE ]; then 
 			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
+		#local file first
+		elif [ -f ./$TARGET_FILE ]; then
+	        TARGET_FILE=./$TARGET_FILE
+		#targets file second
+		elif [ -f $TARGET_DIR/$TARGET_FILE ]; then 
+			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
+		else 
+			fail "Not valid target name: $TARGET_FILE" 
 		fi ;;
     -c | --clone ) shift;
         CLONE_NO=$1 
