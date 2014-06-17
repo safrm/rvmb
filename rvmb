@@ -76,10 +76,10 @@ while [ $# -gt 0 ]; do
 	DEFAULT_CMD=$1 ;;
     list-targets )
 		if [ -e ./targets ]; then
-			echo "`pwd`/targets: " ; ls -1 ./targets 2> /dev/null ;
-			echo 
+			echo "\033[01;34m`pwd`/targets:\033[33m" ; ls -1 ./targets 2> /dev/null ;
+			echo "\033[0m"
 		fi
-		echo "$TARGET_DIR: "; ls -1 $TARGET_DIR ; exit 0;;
+		echo "\033[01;34m$TARGET_DIR:\033[0m"; ls -1 $TARGET_DIR ; exit 0;;
 	list-images )
 		ls -1 *.raw *.img *.qcow 2>/dev/null ; exit 0;;
 	show-target) VERBOSE_FLAG=1 ; DEFAULT_CMD=$1 ;;
