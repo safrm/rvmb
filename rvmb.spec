@@ -27,10 +27,10 @@ jss-docs-update ./doc -sv %{version}
 %install
 rm -fr %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_datadir}/rvmb/targets
 install -m 755 ./rvmb %{buildroot}%{_bindir}
 sed -i".bkp" "1,/^VERSION=/s/^VERSION=.*/VERSION=%{version}/" %{buildroot}%{_bindir}/rvmb && rm -f %{buildroot}%{_bindir}/rvmb.bkp
 sed -i".bkp" "1,/^VERSION_DATE=/s/^VERSION_DATE=.*/VERSION_DATE=%{APP_BUILD_DATE}/" %{buildroot}%{_bindir}/rvmb && rm -f %{buildroot}%{_bindir}/rvmb.bkp
+mkdir -p  %{buildroot}%{_sysconfdir}/rvmb/targets
 TARGETS=`find ./targets -type f`
 install -m 755 $TARGETS %{buildroot}%{_sysconfdir}/rvmb/targets
 
@@ -53,7 +53,7 @@ done
 %files
 %defattr(-,root,root,-)
 %{_bindir}/rvmb
-%dir %{_datadir}/rvmb/targets
+%dir %{_sysconfdir}/rvmb/targets
 %{_sysconfdir}/rvmb/targets/*
 
 %{_mandir}/man1/rvmb.1*
