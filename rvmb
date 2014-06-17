@@ -13,10 +13,9 @@ TS=$(date +%Y_%m_%d__%H_%M)
 
 #helpers
 alias echo="/bin/echo -e"
-log()  { printf  "%b\n" "$*"; }
 debug(){ [ ${DEBUG_FLAG:-0} -eq 0 ] || echo "Running($#): $*"; }
 verbose(){ [ ${VERBOSE_FLAG:-0} -eq 0 ] || echo "$*"; }
-fail() { log "\n\033[01;31mERROR: $*\033[00m\n" ; exit 1 ; }
+fail() { printf "\n\033[01;31mERROR: $*\033[00m\n" ; exit 1 ; }
 
 usage() {
     echo "$BASENAME ${VERSION} - Rapid VM builder for qemu-kvm"
@@ -87,11 +86,11 @@ while [ $# -gt 0 ]; do
     kill-all) rvmb_kill_all ; exit ;;
     -h | --help) 
         usage ; exit 0 ;;
-    -vnc  )	
+    -vnc )	
         VNC_FLAG=-vnc ;;
-     -ng|--nographic) 
+    -ng | --nographic) 
         NOGRAPHIC_FLAG=-nographic ;;
-     -v|--verbose) 
+    -v | --verbose) 
         VERBOSE_FLAG=1 ;;
     -d | --debug) 
         DEBUG_FLAG=1 ;;

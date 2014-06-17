@@ -33,6 +33,9 @@
         <arg choice="opt">-d --debug</arg>
         <arg choice="opt">-c --clone &lt;number&gt;</arg>
         <arg choice="opt">-m --memory &lt;kB&gt;</arg>
+        <arg choice="opt">-u --user &lt;VM-user&gt;</arg>
+        <arg choice="opt">-vnc</arg>
+        <arg choice="opt">-ng --nographic</arg>
         <arg choice="opt">-V --version</arg>
 	</cmdsynopsis>
 </refsynopsisdiv>
@@ -103,7 +106,31 @@
           </para>
         </listitem>
       </varlistentry>
-      
+       
+      <varlistentry><term>-u --user &lt;VM-username&gt;</term>
+        <listitem>
+          <para>
+            Uses own VM user (default user).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry><term>-vnc</term>
+        <listitem>
+          <para>
+            Enables vnc on display (:1 + clone).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry><term>-ng --nographic</term>
+        <listitem>
+          <para>
+            Disable graphical output.
+          </para>
+        </listitem>
+      </varlistentry>
+     
      <varlistentry><term>-V --version</term>
          <listitem>
           <para>

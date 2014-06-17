@@ -10,8 +10,8 @@ _rvmb ()
           start stop status status-all kill-all
           backup-image mount-image umount-image chroot-image
           connect-ssh connect-vnc"
-    options="-h -v -d -c -m -V
-            --help --verbose --debug --clone --memory --version" 
+    options="-h -v -d -c -m -u -vnc -ng -V
+            --help --verbose --debug --clone --memory --user --nographic --version" 
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$options"  -- "$cur" ) )
@@ -26,7 +26,7 @@ _rvmb ()
                 conns=$(ls -1 --file-type --color=none /etc/rvmb/targets ./targets 2> /dev/null | grep -v '/'  )
                 COMPREPLY=( $(compgen -W "$conns" $cur) )
             else
-                COMPREPLY=( $( compgen -W '-v -d -c -m --verbose --debug --clone --memory' -- "$cur" ) ) 
+                COMPREPLY=( $( compgen -W '-v -d -c -m -u -vnc -ng --verbose --debug --clone --memory --user --nographic' -- "$cur" ) ) 
             fi ;;
            show-target )
                 conns=$(ls -1 --file-type --color=none /etc/rvmb/targets ./targets 2> /dev/null | grep -v '/'  ) 
