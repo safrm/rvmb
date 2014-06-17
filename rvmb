@@ -36,6 +36,7 @@ usage() {
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
     echo " -vnc ............................... enable vnc on display (:1 + clone)"
+    echo " -ng, --nographic ................... disable graphical output"
     echo " -V, --version  ..................... prints version of the scripts"
 	echo " TARGET-FILE ........................ target config file name or full path,"
     echo "                                      targets files are in /etc/rvmb/targets or ./targets"
@@ -88,6 +89,8 @@ while [ $# -gt 0 ]; do
         usage ; exit 0 ;;
     -vnc  )	
         VNC_FLAG=-vnc ;;
+     -ng|--nographic) 
+        NOGRAPHIC_FLAG=-nographic ;;
      -v|--verbose) 
         VERBOSE_FLAG=1 ;;
     -d | --debug) 
@@ -173,7 +176,7 @@ rvmb_run_live_iso()
 	rvmb_prepare
 	rvmb_download_iso
 	echo "Runing live iso $ISO_FILE_LOCAL"
-	qemu-system-x86_64 -name "live $ISO_FILE_LOCAL" $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+	qemu-system-x86_64 -name "live $ISO_FILE_LOCAL" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 }
 
 #check and install host 
@@ -240,7 +243,7 @@ rvmb_install_image()
 	[ -e $ISO_FILE_LOCAL ] || fail "Iso file $ISO_FILE_LOCAL does not exist "
 	[ -e $SHARE_DIR ] || mkdir -p $SHARE_DIR
 
-	qemu-system-x86_64 -name "$DISK_NAME install" $VNC_FLAG $VNC_PORT -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+	qemu-system-x86_64 -name "$DISK_NAME install" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 
 }
 
@@ -250,7 +253,7 @@ rvmb_start_vm()
 	debug "rvmb_start_vm"
 	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
 	#run
-	qemu-system-x86_64 -name $DISK_NAME $VNC_FLAG $VNC_PORT -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
+	qemu-system-x86_64 -name $DISK_NAME $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
 
 	#sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
 }
