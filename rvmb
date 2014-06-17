@@ -133,7 +133,8 @@ done
 [ -f "$TARGET_FILE" ] && debug "file exists $TARGET_FILE" || fail "Target configuration file $TARGET_FILE does not exist"
 . $TARGET_FILE
 DISK_NAME=`basename $TARGET_FILE`
-echo "Using target configuration from $TARGET_FILE for $NAME"
+echo "Using target configuration \033[01;33m$DISK_NAME\033[00m from $TARGET_FILE"
+echo "Description: $DESCRIPTION"
 verbose "`cat $TARGET_FILE` \n" 
 
 #fixes for clonned environments
@@ -293,13 +294,13 @@ rvmb_status()
 		RUNNING_PROBLEM="${RUNNING_PROBLEM}process with image is not running"
 	fi
 	if [ $RUNNING -eq 1 ]; then
-		echo "running"
+		echo "\033[32running\033[00m"
 		if [ -n "$RUNNING_PROBLEM" ]; then
 			echo "$RUNNING_PROBLEM"
 			exit 1;
 		fi
 	else
-		echo "not running"
+		echo "\033[32mnot running\033[00m"
 	fi
 }
 
