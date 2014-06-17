@@ -16,7 +16,7 @@ alias echo="/bin/echo -e"
 log()  { printf  "%b\n" "$*"; }
 debug(){ [ ${DEBUG_FLAG:-0} -eq 0 ] || echo "Running($#): $*"; }
 verbose(){ [ ${VERBOSE_FLAG:-0} -eq 0 ] || echo "$*"; }
-fail() { log "\nERROR: $*\n" ; exit 1 ; }
+fail() { log "\n\033[01;31mERROR: $*\033[00m\n" ; exit 1 ; }
 
 usage() {
     echo "$BASENAME ${VERSION} - Rapid VM builder for qemu-kvm"
