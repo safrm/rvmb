@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: rvmb
 .\"    Author: Miroslav Safr <miroslav.safr@gmail.com>
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 20140611_1605
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 20140618_1257
 .\"    Manual:  Rapid VM builder for qemu-kvm based portable VMs
-.\"    Source: rvmb 0.1.0
+.\"    Source: rvmb 0.3.0
 .\"  Language: English
 .\"
-.TH "RVMB" "1" "20140611_1605" "rvmb 0.1.0" "Rapid VM builder for qemu-kvm"
+.TH "RVMB" "1" "20140618_1257" "rvmb 0.3.0" "Rapid VM builder for qemu-kvm"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -30,16 +30,16 @@
 .SH "NAME"
 rvmb \- Rapid VM builder for qemu\-kvm based portable VMs
 .SH "SYNOPSIS"
-.HP \w'\fBrvmb\ [COMMAND]\ [OPTIONS]\&.\&.\&.\fR\ 'u
-\fBrvmb  [COMMAND] [OPTIONS]\&.\&.\&.\fR [\-h\ \-\-help] [\-v\ \-\-verbose] [\-d\ \-\-debug] [\-t\ \-\-target\ <conf\-file>] [\-c\ \-\-clone\ <number>] [\-m\ \-\-memory\ <kB>] [\-V\ \-\-version]
+.HP \w'\fBrvmb\ [COMMAND]\ [TARGET\-FILE]\ [OPTIONS]\&.\&.\&.\fR\ 'u
+\fBrvmb [COMMAND] [TARGET\-FILE] [OPTIONS]\&.\&.\&.\fR [\-h\ \-\-help] [\-v\ \-\-verbose] [\-d\ \-\-debug] [\-c\ \-\-clone\ <number>] [\-m\ \-\-memory\ <kB>] [\-u\ \-\-user\ <VM\-user>] [\-vnc] [\-ng\ \-\-nographic] [\-V\ \-\-version]
 .SH "DESCRIPTION"
 .PP
 Rapid VM builder for qemu\-kvm based portable VMs\&. As a working directory is taked current dir\&.
 .SH "COMMAND"
 .PP
-Specify step execution: list\-targets prepare\-host create\-disk download\-iso install\-base customize\-image run\-vm connect\-ssh connect\-xrdp
+Specify step execution: list\-targets list\-images show\-target run\-live\-iso install (prepare\-host create\-disk download\-iso install\-image) start stop status status\-all kill\-all backup\-image mount\-image umount\-image chroot\-image connect\-ssh connect\-vnc
 .PP
-If not specified usign automatic detection: empty=install, image installed=run\-vm running=connect\-ssh
+If not specified usign automatic detection: empty=install, image installed=start\-vm running=connect\-ssh
 .SH "OPTIONS"
 .PP
 \-h \-\-help
@@ -57,11 +57,6 @@ Prints more output\&.
 Prints also debug output\&.
 .RE
 .PP
-\-t \-\-target <conf\-file>
-.RS 4
-Select target config file\&. It can be a full path to the file or name of the file in targets dir (list\-targets)\&.
-.RE
-.PP
 \-c \-\-clone <number>
 .RS 4
 Cloning increment number (adds postfix, increases ports etc\&.)\&. so there can be created more VMs from one configuration file\&.
@@ -72,13 +67,30 @@ Cloning increment number (adds postfix, increases ports etc\&.)\&. so there can 
 Uses specific VM memory amount (in kB)\&.
 .RE
 .PP
+\-u \-\-user <VM\-username>
+.RS 4
+Uses own VM user (default user)\&.
+.RE
+.PP
+\-vnc
+.RS 4
+Enables vnc on display (:1 + clone)\&.
+.RE
+.PP
+\-ng \-\-nographic
+.RS 4
+Disable graphical output\&.
+.RE
+.PP
 \-V \-\-version
 .RS 4
 Prints version of the scripts\&.
 .RE
+.SH "TARGET-FILE"
+.PP
+Select target config file\&. It can be a full path to the file or name of the file in targets dir (list\-targets)\&. Searching directories are \&./targets and /etc/rvmb/targets
 .SH "SEE ALSO"
 .PP
-
 \m[blue]\fB\%http://safrm.net/projects/rvmb\fR\m[]
 .SH "AUTHOR"
 .PP

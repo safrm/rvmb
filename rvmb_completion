@@ -6,7 +6,7 @@ _rvmb ()
     _init_completion || return
 
 	cmds="list-targets list-images show-target 
-          prepare-host create-disk download-iso run-live-iso install-image
+          install prepare-host create-disk download-iso run-live-iso install-image
           start stop status status-all kill-all
           backup-image mount-image umount-image chroot-image
           connect-ssh connect-vnc"
@@ -21,7 +21,7 @@ _rvmb ()
     else
 
         case "${COMP_WORDS[1]}" in
-           list-targets | list-images | prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | backup-image | mount-image |  umount-image | chroot-image | connect-ssh | connect-vnc )
+           list-targets | list-images | prepare-host | create-disk | download-iso | run-live-iso | install-image | install | start | stop | status | backup-image | mount-image |  umount-image | chroot-image | connect-ssh | connect-vnc )
             if [[ $COMP_CWORD == 2 ]]; then
                 conns=$(ls -1 --file-type --color=none /etc/rvmb/targets ./targets 2> /dev/null | grep -v '/'  )
                 COMPREPLY=( $(compgen -W "$conns" $cur) )

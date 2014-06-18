@@ -22,8 +22,8 @@ usage() {
     echo " http://safrm.net/projects/rvmo/"
     echo "Usage:$BASENAME [COMMAND] [TARGET-FILE] [OPTIONS]..."
     echo " COMMAND ............................ specify step execution "
-    echo "  list-targets list-images show-target "
-    echo "  prepare-host create-disk download-iso run-live-iso install-image "
+    echo "  list-targets list-images show-target run-live-iso"
+    echo "  install (prepare-host create-disk download-iso install-image)"
     echo "  start stop status status-all kill-all"
     echo "  backup-image mount-image umount-image chroot-image"
     echo "  connect-ssh connect-vnc"
@@ -70,7 +70,7 @@ rvmb_kill_all()
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | install-image | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
+    prepare-host | create-disk | download-iso | run-live-iso | install-image | install | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
     list-targets )
@@ -162,12 +162,7 @@ rvmb_installation()
 	debug "rvmb_installation:"
 	rvmb_prepare
 	rvmb_create_disk
-	#we run it straight
-	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a -n $CLONE_NO ]; then
-		rvmb_start_vm
-	else
-		rvmb_install_image
-	fi
+	rvmb_install_image
 }
 
 rvmb_run_live_iso() 
@@ -363,6 +358,7 @@ case $DEFAULT_CMD in
   download-iso) rvmb_download_iso ;;
   run-live-iso) rvmb_run_live_iso ;;
   install-image) rvmb_install_image ;;
+  install) rvmb_installation ;;
   start) rvmb_start_vm ;;
   status) rvmb_status ;;
   stop) rvmb_stop_vm ;;
