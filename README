@@ -33,7 +33,7 @@ $ rvmb install ubuntu-12.04-i386-desktop
 $ rvmb start ubuntu-12.04-i386-desktop 
 
 #connect running VM
-$ rvmb connect-vm-ssh ubuntu-12.04-i386-desktop
+$ rvmb connect-ssh ubuntu-12.04-i386-desktop
 
 
 Usage - try live iso :
