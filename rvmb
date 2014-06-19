@@ -132,7 +132,7 @@ done
 [ -f "$TARGET_FILE" ] && debug "file exists $TARGET_FILE" || fail "Target configuration file $TARGET_FILE does not exist"
 . $TARGET_FILE
 DISK_NAME=`basename $TARGET_FILE`
-echo "Using target configuration \033[01;33m$DISK_NAME\033[00m from $TARGET_FILE"
+echo "Using target configuration \033[01;33m$DISK_NAME\033[00m ($CLONE_NO) from $TARGET_FILE"
 echo "Description: $DESCRIPTION"
 verbose "`cat $TARGET_FILE` \n" 
 
