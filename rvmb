@@ -191,10 +191,10 @@ rvmb_create_disk()
 {
 	debug "rvmb_create_disk:"
 	if [ -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
-		echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists, Do you want to overwrite it Y/n ?"
+		echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists, Do you want to overwrite it y/N ?"
 		while true
 	    do
-    	    KEY=$(bash -c 'read -p " Do you want to continue (d=delete dir and continue)? [y/n/d] " -n 1 ans;echo "$ans"')
+    	    KEY=$(bash -c 'read -p " Do you want to continue? [y/N] " -n 1 ans;echo "$ans"')
     	    echo ""
     	    case $KEY in
     		    y|Y|YES|yes|Yes) break ;;
