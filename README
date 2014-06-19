@@ -25,15 +25,15 @@ $ rvmb list-targets
 #create and install VM
 #there can be passed own configuration file based on teplate (-t <file>)
 #or created clone of the same VM configuration (-c <number>)
-$ rvmb install ubuntu-12.04-x86_64-mini 
+$ rvmb install ubuntu-12.04-i386-desktop
 
 #.. manual steps during installation
 
 #running the VM
-$ rvmb start
+$ rvmb start ubuntu-12.04-i386-desktop 
 
 #connect running VM
-$ rvmb connect-vm-ssh
+$ rvmb connect-vm-ssh ubuntu-12.04-i386-desktop
 
 
 Usage - try live iso :

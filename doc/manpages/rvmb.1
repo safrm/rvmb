@@ -2,12 +2,12 @@
 .\"     Title: rvmb
 .\"    Author: Miroslav Safr <miroslav.safr@gmail.com>
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 20140618_1257
+.\"      Date: 20140619_1130
 .\"    Manual:  Rapid VM builder for qemu-kvm based portable VMs
 .\"    Source: rvmb 0.3.0
 .\"  Language: English
 .\"
-.TH "RVMB" "1" "20140618_1257" "rvmb 0.3.0" "Rapid VM builder for qemu-kvm"
+.TH "RVMB" "1" "20140619_1130" "rvmb 0.3.0" "Rapid VM builder for qemu-kvm"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -37,7 +37,7 @@ rvmb \- Rapid VM builder for qemu\-kvm based portable VMs
 Rapid VM builder for qemu\-kvm based portable VMs\&. As a working directory is taked current dir\&.
 .SH "COMMAND"
 .PP
-Specify step execution: list\-targets list\-images show\-target run\-live\-iso install (prepare\-host create\-disk download\-iso install\-image) start stop status status\-all kill\-all backup\-image mount\-image umount\-image chroot\-image connect\-ssh connect\-vnc
+Specify step execution: list\-targets list\-images show\-target run\-live\-iso install (prepare\-host create\-disk download\-iso setup\-image) start stop status status\-all kill\-all backup\-image mount\-image umount\-image chroot\-image connect\-ssh connect\-vnc
 .PP
 If not specified usign automatic detection: empty=install, image installed=start\-vm running=connect\-ssh
 .SH "OPTIONS"

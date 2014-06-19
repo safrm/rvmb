@@ -1,9 +1,9 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>rvmb</title><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="refentry"><a name="rvmb.1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>rvmb &#8212;  Rapid VM builder for qemu-kvm based portable VMs</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">rvmb [COMMAND] [TARGET-FILE] [OPTIONS]...</code>  [-h --help] [-v --verbose] [-d --debug] [-c --clone &lt;number&gt;] [-m --memory &lt;kB&gt;] [-u --user &lt;VM-user&gt;] [-vnc] [-ng --nographic] [-V --version]</p></div></div><div class="refsect1"><a name="idp60293040"></a><h2>DESCRIPTION</h2><p>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>rvmb</title><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="refentry"><a name="rvmb.1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>rvmb &#8212;  Rapid VM builder for qemu-kvm based portable VMs</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">rvmb [COMMAND] [TARGET-FILE] [OPTIONS]...</code>  [-h --help] [-v --verbose] [-d --debug] [-c --clone &lt;number&gt;] [-m --memory &lt;kB&gt;] [-u --user &lt;VM-user&gt;] [-vnc] [-ng --nographic] [-V --version]</p></div></div><div class="refsect1"><a name="idp51295888"></a><h2>DESCRIPTION</h2><p>
      Rapid VM builder for qemu-kvm based portable VMs. As a working directory is taked current dir.
-    </p></div><div class="refsect1"><a name="idp56820960"></a><h2>COMMAND</h2><p>
+    </p></div><div class="refsect1"><a name="idp51297072"></a><h2>COMMAND</h2><p>
      Specify step execution:
          list-targets list-images show-target run-live-iso
-         install (prepare-host create-disk download-iso install-image)
+         install (prepare-host create-disk download-iso setup-image)
 		 start stop status status-all kill-all
          backup-image mount-image umount-image chroot-image
 		 connect-ssh connect-vnc
@@ -12,7 +12,7 @@
 	     empty=install, 
 	     image installed=start-vm
          running=connect-ssh
-    </p></div><div class="refsect1"><a name="idp56183488"></a><h2>OPTIONS</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">-h --help</span></dt><dd><p>
+    </p></div><div class="refsect1"><a name="idp50958096"></a><h2>OPTIONS</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">-h --help</span></dt><dd><p>
             Print help text to the screen.
           </p></dd><dt><span class="term">-v --verbosee</span></dt><dd><p>
             Prints more output.
@@ -30,13 +30,13 @@
             Disable graphical output.
           </p></dd><dt><span class="term">-V --version</span></dt><dd><p>
 			Prints version of the scripts.
-          </p></dd></dl></div></div><div class="refsect1"><a name="idp55470896"></a><h2>TARGET-FILE</h2><p>
+          </p></dd></dl></div></div><div class="refsect1"><a name="idp51709728"></a><h2>TARGET-FILE</h2><p>
       Select target config file. It can be a full path to the file or name of the file in targets dir (list-targets).
 	  Searching directories are ./targets and /etc/rvmb/targets 
-    </p></div><div class="refsect1"><a name="idp55472288"></a><h2>SEE ALSO</h2><p>
+    </p></div><div class="refsect1"><a name="idp51711120"></a><h2>SEE ALSO</h2><p>
       <a class="ulink" href="http://safrm.net/projects/rvmb" target="_top">http://safrm.net/projects/rvmb</a>
-    </p></div><div class="refsect1"><a name="idp55473776"></a><h2>AUTHOR</h2><p>
+    </p></div><div class="refsect1"><a name="idp51712720"></a><h2>AUTHOR</h2><p>
         Miroslav &#352;afr &lt;miroslav.safr@gmail.com&gt;
-    </p></div><div class="refsect1"><a name="idp55475088"></a><h2>LICENSE</h2><p>
+    </p></div><div class="refsect1"><a name="idp51714032"></a><h2>LICENSE</h2><p>
        LGPL2
     </p></div></div></body></html>

@@ -51,7 +51,7 @@
     <para>
      Specify step execution:
          list-targets list-images show-target run-live-iso
-         install (prepare-host create-disk download-iso install-image)
+         install (prepare-host create-disk download-iso setup-image)
 		 start stop status status-all kill-all
          backup-image mount-image umount-image chroot-image
 		 connect-ssh connect-vnc
