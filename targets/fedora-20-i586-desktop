@@ -1,0 +1,6 @@
+DESCRIPTION='Fedora 20 desktop i386'
+ISO_URL=https://dl.fedoraproject.org/pub/fedora/linux/releases/20/Live/i386/Fedora-Live-Desktop-i686-20-1.iso
+HOST_SSH_PORT=8200
+DISK_SIZE=4G
+DISK_FORMAT_EXT=raw
+

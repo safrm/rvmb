@@ -3,6 +3,16 @@ author:  Miroslav Safr <miroslav.safr@gmail.com>
 web: http://safrm.net/projects/rvmb
 description: Rapid VM builder for qemu-kvm based portable VMs
 
+Base use cases: 
+A. Portable VMs - can be run from usb drive or just copied (2 files) between 2 computers
+   (rvmb does not have to be even installed)
+B. Rapid installation - there is no need to have anything (default targets or 
+   own target file) to recreate standard VMs quickly and repetitavely
+C. VM backing up - VM image can be zipped and restored by just copying one file 
+   (6,4GB disk compressed to 1,3GB), QCOW2 images can also use qemu snapshots
+D. Clonning environments - very easy clonning existing VM into the same environments 
+   - install once reuse image many times
+E. CI intergations - possible to run and control without gui (from for example jenkins)
 
 content: 
 rvmb .................. main script
@@ -15,22 +25,27 @@ $ rvmb list-targets
 #create and install VM
 #there can be passed own configuration file based on teplate (-t <file>)
 #or created clone of the same VM configuration (-c <number>)
-$ rvmb -t ubuntu-12.04-x86_64-mini
+$ rvmb install ubuntu-12.04-x86_64-mini 
 
 #.. manual steps during installation
 
 #running the VM
-$ rvmb run-vm
+$ rvmb start
 
 #connect running VM
 $ rvmb connect-vm-ssh
 
 
 Usage - try live iso :
-$ rvmb run-live-iso -t ubuntu-12.04-x86_64-desktop
+$ rvmb run-live-iso ubuntu-12.04-x86_64-desktop
+
+
 
 Tested targets:
 	ubuntu-12.04-i386-desktop
 	ubuntu-12.04-x86_64-desktop
 	ubuntu-12.04-x86_64-mini 
-
+	fedora-20-i586-desktop
+	fedora-20-i586-mini
+	fedora-20-x86_64-desktop
+	fedora-20-x86_64-mini
