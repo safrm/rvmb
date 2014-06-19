@@ -30,7 +30,7 @@ $ rvmb install ubuntu-12.04-i386-desktop
 #.. manual steps during installation
 
 #running the VM
-$ rvmb start ubuntu-12.04-i386-desktop 
+$ rvmb start ubuntu-12.04-desktop-i386
 
 #connect running VM
 $ rvmb connect-ssh ubuntu-12.04-i386-desktop
@@ -40,12 +40,12 @@ Usage 2:Try live iso :
 $ rvmb run-live-iso ubuntu-12.04-x86_64-desktop
 
 
-Usage 3: Clone VM and connect between 2 VMs :
+Usage 3: Clone VM0 to VM1 and connect between 2 VMs :
 Steps from Usage 1
 rvmb start ubuntu-12.04-i386-desktop -c 1
 
 #connect from VM0 to VM1 
-rvmb connect-ssh ubuntu-12.04-i386-desktop 
+rvmb connect-ssh ubuntu-12.04-i386-desktop
 VM0$ ssh  192.168.101.2 -p 8024
 #connect from VM1 to VM0 
 rvmb connect-ssh ubuntu-12.04-i386-desktop -c 1

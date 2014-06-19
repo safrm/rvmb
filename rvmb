@@ -14,7 +14,7 @@ TS=$(date +%Y_%m_%d__%H_%M)
 #helpers
 alias echo="/bin/echo -e"
 debug(){ [ ${DEBUG_FLAG:-0} -eq 0 ] || echo "Running($#): $*"; }
-verbose(){ [ ${VERBOSE_FLAG:-0} -eq 0 ] || echo "$*"; }
+verbose(){ [ ${VERBOSE_FLAG:-0} -eq 0 ] || echo "\033[36m$*\033[00m"; }
 fail() { printf "\n\033[01;31mERROR: $*\033[00m\n" ; exit 1 ; }
 
 usage() {
@@ -164,7 +164,12 @@ rvmb_installation()
 	debug "rvmb_installation:"
 	rvmb_prepare
 	rvmb_create_disk
-	rvmb_setup_image
+	#copied ready clone
+	if [ $? -eq 2 ]; then
+	  rvmb_start_vm
+	else 
+	  rvmb_setup_image	
+    fi
 }
 
 rvmb_run_live_iso() 
@@ -187,18 +192,20 @@ rvmb_prepare()
 	fi
 }
 
+#1, not overrwite, 2 -clonned
 rvmb_create_disk()
 {
 	debug "rvmb_create_disk:"
 	if [ -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
-		echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists, Do you want to overwrite it y/N ?"
+		echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists."
 		while true
 	    do
-    	    KEY=$(bash -c 'read -p " Do you want to continue? [y/N] " -n 1 ans;echo "$ans"')
+    	    KEY=$(bash -c 'read -p " Do you want to overwrite it (abort) [y/N/a] " -n 1 ans;echo "$ans"')
     	    echo ""
     	    case $KEY in
-    		    y|Y|YES|yes|Yes) break ;;
-    		    n|N|no|NO|No|*)
+    		    y|Y|YES|yes|Yes) verbose "YES" ;  break ;;
+    		    n|N|no|NO|No) verbose "NO" ; return 1 ;;
+    		    a|abort|*)
         		    echo "Aborting - you entered $KEY" ;  exit 1 ;;      
 		    esac
 	    done
@@ -207,6 +214,7 @@ rvmb_create_disk()
 	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a -n $CLONE_NO ]; then
 		verbose "Copying image: $BASE_DISK_NAME.$DISK_FORMAT_EXT to $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
 		cp -f $BASE_DISK_NAME.$DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT 
+		return 2;
 	else
 		verbose "Creating image: $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
 		qemu-img create -f $DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE || fail "Image creation failed"
