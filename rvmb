@@ -44,9 +44,11 @@ usage() {
 
 rvmb_status_all()
 {
-	ls -1 ./*-running 2> /dev/null
-	echo
+	ls -1 ./*-running 2> /dev/null && echo
 	ps -AF | grep [q]emu	
+	if [ $? != 0 ]; then
+		echo "\033[32mno qemu processes running\033[00m"
+	fi
 }
 
 rvmb_kill_all()
@@ -63,7 +65,7 @@ rvmb_kill_all()
 			    kill $QEMUPID
 		done
 	else 	
-		echo "no qemu processes running"
+		echo "\033[32mno qemu processes running\033[00m"
 	fi
 }
 
