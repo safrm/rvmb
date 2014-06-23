@@ -71,23 +71,35 @@ rvmb_kill_all()
 	fi
 }
 
+#check and install host 
+rvmb_prepare()
+{
+	debug "rvmb_prepare:"
+	REQUIRED_PACKAGES="qemu-system-x86 qemu-utils kvm "
+	dpkg-query -l $REQUIRED_PACKAGES > /dev/null
+	if [ $? != 0 ]; then
+		sudo apt-get install -y $REQUIRED_PACKAGES  || fail "Failed to install required packages"
+	fi
+}
+
 #cmdline parsing 
 while [ $# -gt 0 ]; do
   case "$1" in
-    prepare-host | create-disk | download-iso | run-live-iso | setup-image | install | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
+    create-disk | download-iso | run-live-iso | setup-image | install | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
         [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
 	DEFAULT_CMD=$1 ;;
-    list-targets )
+    list-targets)
 		if [ -e ./targets ]; then
 			echo "\033[01;34m`pwd`/targets:\033[33m" ; ls -1 ./targets 2> /dev/null ;
 			echo "\033[0m"
 		fi
 		echo "\033[01;34m$TARGET_DIR:\033[0m"; ls -1 $TARGET_DIR ; exit 0;;
-	list-images )
+	list-images)
 		ls -1 *.raw *.img *.qcow 2>/dev/null ; exit 0;;
 	show-target) VERBOSE_FLAG=1 ; DEFAULT_CMD=$1 ;;
     status-all) rvmb_status_all ; exit ;;
     kill-all) rvmb_kill_all ; exit ;;
+	prepare-host) rvmb_prepare ; exit ;;
     -h | --help) 
         usage ; exit 0 ;;
     -vnc )	
@@ -98,23 +110,23 @@ while [ $# -gt 0 ]; do
         VERBOSE_FLAG=1 ;;
     -d | --debug) 
         DEBUG_FLAG=1 ;;
-    -c | --clone ) shift;
+    -c | --clone) shift;
         CLONE_NO=$1 
 		if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then
 			debug "integer CLONE_NO=$CLONE_NO ok"
 		else
 			fail "$CLONE_NO is not valid number" 
 		fi ;;
-    -m | --memory ) shift;
+    -m | --memory) shift;
         MEMORY=$1 
 		if [ $MEMORY -ne 0 -o $MEMORY -eq 0 2> /dev/null ]; then
 			debug "integer MEMORY=$MEMORY ok"
 		else
 			fail "$MEMORY is not valid number" 
 		fi ;;
-    -u | --user ) shift;
+    -u | --user) shift;
         VMUSER=$1 ;;
-    * )      
+    *)      
 		[ -n "$TARGET_FILE" ] && fail "Target can be only one ($TARGET_FILE)"
         TARGET_FILE=$1 
 		if [ $(echo $TARGET_FILE | head -c1) = '/' -a -f $TARGET_FILE ]; then 
@@ -181,17 +193,6 @@ rvmb_run_live_iso()
 	rvmb_download_iso
 	echo "Runing live iso $ISO_FILE_LOCAL"
 	qemu-system-x86_64 -name "live $ISO_FILE_LOCAL" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
-}
-
-#check and install host 
-rvmb_prepare()
-{
-	debug "rvmb_prepare:"
-	REQUIRED_PACKAGES="qemu-system-x86 qemu-utils kvm "
-	dpkg-query -l $REQUIRED_PACKAGES > /dev/null
-	if [ $? != 0 ]; then
-		sudo apt-get install -y $REQUIRED_PACKAGES  || fail "Failed to install required packages"
-	fi
 }
 
 #1, not overrwite, 2 -clonned
@@ -365,7 +366,6 @@ rvmb_chroot_image()
 
 case $DEFAULT_CMD in
   show-target) rvmb_show_target ;;
-  prepare-host) rvmb_prepare ;;
   create-disk) rvmb_create_disk ;;
   download-iso) rvmb_download_iso ;;
   run-live-iso) rvmb_run_live_iso ;;
