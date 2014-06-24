@@ -1,3 +1,4 @@
 rvmb /usr/bin/
 targets/* /etc/rvmb/targets
+rvmb_completion /etc/bash_completion.d/
 doc/manpages/rvmb.1  /usr/share/man/man1
