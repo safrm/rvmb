@@ -315,6 +315,7 @@ rvmb_status()
 rvmb_connect_vm_ssh()
 {
 	verbose "VMUSER:$VMUSER PORT:$HOST_SSH_PORT"
+	verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
 	ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 }
 rvmb_connect_vm_vnc()
