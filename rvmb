@@ -317,7 +317,7 @@ rvmb_status()
 rvmb_connect_vm_ssh()
 {
 	DISTRO_LETTER=$(echo $DISK_NAME | head -c1)
-	PNAME="\\\\033[33mVM-${DISTRO_LETTER}${CLONE_NO}-${HOST_SSH_PORT}:\\\\033[0m"
+	PNAME="\\\\033[01\;33mVM-${DISTRO_LETTER}${CLONE_NO}-${HOST_SSH_PORT}:\\\\033[0m"
 	verbose "VM-${DISTRO_LETTER}${HOST_SSH_PORT}: VMUSER:${VMUSER:-user} PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
 	verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
 	if [ -n "$AUTHORIZE_SSH" ]; then
@@ -328,7 +328,9 @@ rvmb_connect_vm_ssh()
 	if [ -n "$SSH_NO_PROMPT" ]; then
 		ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 	else
- 	    ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "export PS1=\"$PNAME[\\u@\\h \\W]\\$ \" ; exec bash"
+		#on-fly prompt changes work only if the PS is not defined later (fedora yes, but ubuntu no)
+		#ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "export PS1=\"$PNAME[\\u@\\h \\W]\\$ \" ; exec bash"
+ 	    ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "cp ~/.bashrc ~/.bashrc.n &>/dev/null ; ( echo "export PS1=\\\"$PNAME[\\\\u@\\\\h \\\\W]\\\\$ \\\"" >> ~/.bashrc.n ); exec bash --rcfile ~/.bashrc.n"
 	fi
 }
 
