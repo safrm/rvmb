@@ -33,7 +33,7 @@ usage() {
     echo " OPTIONS: "
     echo " -h, --help ......................... shows command line help"
     echo " -v, --verbose ...................... prints more output"
-    echo " -d, --debug ........................ enable debug"
+    echo " -vv, --debug ....................... prints also debug output"
     echo " -c, --clone <number> ............... cloning increment number (adds postfix, increases ports etc.)"
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
@@ -107,10 +107,8 @@ while [ $# -gt 0 ]; do
     -vnc) VNC_FLAG=-vnc ;;
     -ng|--nographic) NOGRAPHIC_FLAG=-nographic ;;
     -np|--noprompt) SSH_NO_PROMPT=1 ;;
-    -v|--verbose) 
-        VERBOSE_FLAG=1 ;;
-    -d|--debug) 
-        DEBUG_FLAG=1 ;;
+    -vv|--debug)    VERBOSE_FLAG=1 ; DEBUG_FLAG=1 ;;
+    -v|--verbose)   VERBOSE_FLAG=1 ;;
     -c|--clone) shift;
         CLONE_NO=$1 
 		if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then

@@ -30,7 +30,7 @@
         <command>rvmb [COMMAND] [TARGET-FILE] [OPTIONS]...</command>
         <arg choice="opt">-h --help</arg>
         <arg choice="opt">-v --verbose</arg>
-        <arg choice="opt">-d --debug</arg>
+        <arg choice="opt">-vv --debug</arg>
         <arg choice="opt">-c --clone &lt;number&gt;</arg>
         <arg choice="opt">-m --memory &lt;kB&gt;</arg>
         <arg choice="opt">-u --user &lt;VM-user&gt;</arg>
@@ -85,7 +85,7 @@
         </listitem>
       </varlistentry>
 
-      <varlistentry><term>--d --debug</term>
+      <varlistentry><term>--vv --debug</term>
         <listitem>
           <para>
             Prints also debug output.
