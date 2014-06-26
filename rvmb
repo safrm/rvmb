@@ -10,6 +10,7 @@ BASENAME=`basename $0`
 SHARE_DIR=./share
 MEMORY=512
 TS=$(date +%Y_%m_%d__%H_%M)
+CLONE_NO=0
 
 #helpers
 alias echo="/bin/echo -e"
@@ -37,6 +38,7 @@ usage() {
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
     echo " -a, --authorize-ssh ................ connect-ssh authorize ssh-keypair"
+    echo " -np, --noprompt .................... connect-ssh without automatic prompt"
     echo " -vnc ............................... enable vnc on display (:1 + clone)"
     echo " -ng, --nographic ................... disable graphical output"
     echo " -V, --version  ..................... prints version of the scripts"
@@ -101,12 +103,10 @@ while [ $# -gt 0 ]; do
     status-all) rvmb_status_all ; exit ;;
     kill-all) rvmb_kill_all ; exit ;;
 	prepare-host) rvmb_prepare ; exit ;;
-    -h|--help) 
-        usage ; exit 0 ;;
-    -vnc )	
-        VNC_FLAG=-vnc ;;
-    -ng|--nographic) 
-        NOGRAPHIC_FLAG=-nographic ;;
+    -h|--help) usage ; exit 0 ;;
+    -vnc) VNC_FLAG=-vnc ;;
+    -ng|--nographic) NOGRAPHIC_FLAG=-nographic ;;
+    -np|--noprompt) SSH_NO_PROMPT=1 ;;
     -v|--verbose) 
         VERBOSE_FLAG=1 ;;
     -d|--debug) 
@@ -155,7 +155,7 @@ verbose "`cat $TARGET_FILE` \n"
 
 #fixes for clonned environments
 BASE_DISK_NAME=$DISK_NAME
-if [ -n "$CLONE_NO" ]; then
+if [ $CLONE_NO -ne 0 ]; then
 	DISK_NAME=$DISK_NAME$CLONE_NO
     HOST_SSH_PORT=$(($HOST_SSH_PORT + $CLONE_NO)) ;
 	verbose "CLONNED MODIFICATIONS:\nDISK_NAME=$DISK_NAME\nHOST_SSH_PORT=$HOST_SSH_PORT"
@@ -164,7 +164,7 @@ MONITOR_FILE=./$DISK_NAME-running
 verbose "MONITOR_FILE=$MONITOR_FILE"
 if [ -n "$VNC_FLAG" -o "x$DEFAULT_CMD" = "xconnect-vnc" ]; then
 	VNC_PORT=1
-	[ -n "$CLONE_NO" ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
+	[ $CLONE_NO -ne 0 ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
 	VNC_PORT=:$VNC_PORT
 	echo "VNC OPTIONS: $VNC_FLAG $VNC_PORT"
 	REQUIRED_PACKAGES="$REQUIRED_PACKAGES xtightvncviewer"
@@ -216,7 +216,7 @@ rvmb_create_disk()
 	    done
 	fi
 	#clone or create
-	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a -n $CLONE_NO ]; then
+	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a $CLONE_NO -ne 0 ]; then
 		verbose "Copying image: $BASE_DISK_NAME.$DISK_FORMAT_EXT to $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
 copy_with_progress $BASE_DISK_NAME.$DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT 
 		return 2;
@@ -316,14 +316,20 @@ rvmb_status()
 
 rvmb_connect_vm_ssh()
 {
-	verbose "VMUSER:$VMUSER PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
+	DISTRO_LETTER=$(echo $DISK_NAME | head -c1)
+	PNAME="\\\\033[33mVM-${DISTRO_LETTER}${CLONE_NO}-${HOST_SSH_PORT}:\\\\033[0m"
+	verbose "VM-${DISTRO_LETTER}${HOST_SSH_PORT}: VMUSER:${VMUSER:-user} PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
 	verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
 	if [ -n "$AUTHORIZE_SSH" ]; then
 		echo "Authorizing ssh-pairs for ${VMUSER:-user}:"
 		verbose "ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
 		ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 	fi
-	ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
+	if [ -n "$SSH_NO_PROMPT" ]; then
+		ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
+	else
+ 	    ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "export PS1=\"$PNAME[\\u@\\h \\W]\\$ \" ; exec bash"
+	fi
 }
 
 rvmb_connect_vm_vnc()

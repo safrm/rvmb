@@ -34,6 +34,8 @@
         <arg choice="opt">-c --clone &lt;number&gt;</arg>
         <arg choice="opt">-m --memory &lt;kB&gt;</arg>
         <arg choice="opt">-u --user &lt;VM-user&gt;</arg>
+		<arg choice="opt">-a --authorize-ssh</arg>
+		<arg choice="opt">-np --noprompt</arg>
         <arg choice="opt">-vnc</arg>
         <arg choice="opt">-ng --nographic</arg>
         <arg choice="opt">-V --version</arg>
@@ -115,6 +117,22 @@
         </listitem>
       </varlistentry>
 
+      <varlistentry><term>-a --authorize-ssh</term>
+        <listitem>
+          <para>
+            connect-ssh first authorizes ssh-keypair.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry><term>-np --noprompt</term>
+        <listitem>
+          <para>
+            connect-ssh without automatic prompt.
+          </para>
+        </listitem>
+      </varlistentry>
+
       <varlistentry><term>-vnc</term>
         <listitem>
           <para>
@@ -129,7 +147,7 @@
             Disable graphical output.
           </para>
         </listitem>
-      </varlistentry>
+      </varlistentry>    
      
      <varlistentry><term>-V --version</term>
          <listitem>
