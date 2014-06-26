@@ -318,8 +318,10 @@ rvmb_connect_vm_ssh()
 	verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
 	ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 }
+
 rvmb_connect_vm_vnc()
 {
+	verbose "vncviewer -via $USER@localhost  localhost$VNC_PORT"
 	vncviewer -via $USER@localhost  localhost$VNC_PORT
 }
 
