@@ -39,6 +39,7 @@ usage() {
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
     echo " -a, --authorize-ssh ................ connect-ssh authorize ssh-keypair"
     echo " -np, --noprompt .................... connect-ssh without automatic prompt"
+    echo " -lm, --login-message <message>...... connect-ssh sets bashrc message to describe VM ("")"
     echo " -vnc ............................... enable vnc on display (:1 + clone)"
     echo " -ng, --nographic ................... disable graphical output"
     echo " -V, --version  ..................... prints version of the scripts"
@@ -109,6 +110,7 @@ while [ $# -gt 0 ]; do
     -np|--noprompt) SSH_NO_PROMPT=1 ;;
     -vv|--debug)    VERBOSE_FLAG=1 ; DEBUG_FLAG=1 ;;
     -v|--verbose)   VERBOSE_FLAG=1 ;;
+ 	-lm|--login-message) shift; SET_LOGIN_MESSAGE=1 ; LOGIN_MESSAGE="$1" ;;
     -c|--clone) shift;
         CLONE_NO=$1 
 		if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then
@@ -323,6 +325,10 @@ rvmb_connect_vm_ssh()
 		verbose "ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
 		ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 	fi
+	if [ -n "$SET_LOGIN_MESSAGE" ]; then
+	   ssh ${VMUSER:-user}@localhost -p $HOST_SSH_PORT -t "(  grep -q ".bashrc_message" ~/.bashrc ) || ( echo "grep -E  \\\".*\\\" ./.bashrc_message --color=always" >> ./.bashrc ) ; echo -en "$LOGIN_MESSAGE" > ~/.bashrc_message "
+	fi
+
 	if [ -n "$SSH_NO_PROMPT" ]; then
 		ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 	else
