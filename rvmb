@@ -28,7 +28,7 @@ usage() {
     echo "  install (prepare-host create-disk download-iso setup-image)"
     echo "  start stop status status-all kill-all"
     echo "  backup-image mount-image umount-image chroot-image"
-    echo "  connect-ssh connect-vnc"
+    echo "  connect-ssh connect-vnc "
     echo " OPTIONS: "
     echo " -h, --help ......................... shows command line help"
     echo " -v, --verbose ...................... prints more output"
@@ -36,6 +36,7 @@ usage() {
     echo " -c, --clone <number> ............... cloning increment number (adds postfix, increases ports etc.)"
     echo " -m, --memory <kB> .................. uses specific VM memory amount"
     echo " -u, --user <VM-user> ............... uses own VM user (default user)"
+    echo " -a, --authorize-ssh ................ connect-ssh authorize ssh-keypair"
     echo " -vnc ............................... enable vnc on display (:1 + clone)"
     echo " -ng, --nographic ................... disable graphical output"
     echo " -V, --version  ..................... prints version of the scripts"
@@ -75,7 +76,7 @@ rvmb_kill_all()
 rvmb_prepare()
 {
 	debug "rvmb_prepare:"
-	REQUIRED_PACKAGES="qemu-system-x86 qemu-utils kvm "
+	REQUIRED_PACKAGES="$REQUIRED_PACKAGES qemu-system-x86 qemu-utils kvm openssh-client"
 	dpkg-query -l $REQUIRED_PACKAGES > /dev/null
 	if [ $? != 0 ]; then
 		sudo apt-get install -y $REQUIRED_PACKAGES  || fail "Failed to install required packages"
@@ -100,32 +101,32 @@ while [ $# -gt 0 ]; do
     status-all) rvmb_status_all ; exit ;;
     kill-all) rvmb_kill_all ; exit ;;
 	prepare-host) rvmb_prepare ; exit ;;
-    -h | --help) 
+    -h|--help) 
         usage ; exit 0 ;;
     -vnc )	
         VNC_FLAG=-vnc ;;
-    -ng | --nographic) 
+    -ng|--nographic) 
         NOGRAPHIC_FLAG=-nographic ;;
-    -v | --verbose) 
+    -v|--verbose) 
         VERBOSE_FLAG=1 ;;
-    -d | --debug) 
+    -d|--debug) 
         DEBUG_FLAG=1 ;;
-    -c | --clone) shift;
+    -c|--clone) shift;
         CLONE_NO=$1 
 		if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then
 			debug "integer CLONE_NO=$CLONE_NO ok"
 		else
 			fail "$CLONE_NO is not valid number" 
 		fi ;;
-    -m | --memory) shift;
+    -m|--memory) shift;
         MEMORY=$1 
 		if [ $MEMORY -ne 0 -o $MEMORY -eq 0 2> /dev/null ]; then
 			debug "integer MEMORY=$MEMORY ok"
 		else
 			fail "$MEMORY is not valid number" 
 		fi ;;
-    -u | --user) shift;
-        VMUSER=$1 ;;
+    -u|--user) shift; VMUSER=$1 ;;
+    -a|--authorize-ssh) AUTHORIZE_SSH=1 ;;
     *)      
 		[ -n "$TARGET_FILE" ] && fail "Target can be only one ($TARGET_FILE)"
         TARGET_FILE=$1 
@@ -166,6 +167,7 @@ if [ -n "$VNC_FLAG" -o "x$DEFAULT_CMD" = "xconnect-vnc" ]; then
 	[ -n "$CLONE_NO" ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
 	VNC_PORT=:$VNC_PORT
 	echo "VNC OPTIONS: $VNC_FLAG $VNC_PORT"
+	REQUIRED_PACKAGES="$REQUIRED_PACKAGES xtightvncviewer"
 fi
 
 rvmb_show_target()
@@ -314,8 +316,13 @@ rvmb_status()
 
 rvmb_connect_vm_ssh()
 {
-	verbose "VMUSER:$VMUSER PORT:$HOST_SSH_PORT"
+	verbose "VMUSER:$VMUSER PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
 	verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
+	if [ -n "$AUTHORIZE_SSH" ]; then
+		echo "Authorizing ssh-pairs for ${VMUSER:-user}:"
+		verbose "ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
+		ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
+	fi
 	ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
 }
 
