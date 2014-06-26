@@ -14,6 +14,9 @@ Autoreq: on
 Autoreqprov: on
 BuildRequires:  appver >= 1.1.1
 BuildRequires: jenkins-support-scripts >= 1.2.4
+Requires: qemu 
+Requires: kvm 
+Requires: openssh-clients
 
 %description
 Rapid VM builder for qemu-kvm based portable VMs

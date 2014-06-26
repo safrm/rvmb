@@ -8,7 +8,7 @@ Homepage: http://safrm.net/projects/rvmb
 
 Package: rvmb
 Architecture: all
-Depends: qemu-system-x86, qemu-utils, kvm, ${misc:Depends}, ${launcher:Depends}, ${shlibs:Depends}
+Depends: qemu-system-x86, qemu-utils, kvm, xtightvncviewer ${misc:Depends}, ${launcher:Depends}, ${shlibs:Depends}
 Description: Rapid VM builder for qemu-kvm based portable VMs  \ 
 	
 	
