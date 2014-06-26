@@ -161,7 +161,7 @@ if [ -n "$CLONE_NO" ]; then
 fi
 MONITOR_FILE=./$DISK_NAME-running
 verbose "MONITOR_FILE=$MONITOR_FILE"
-if [ -n "$VNC_FLAG" ]; then
+if [ -n "$VNC_FLAG" -o "x$DEFAULT_CMD" = "xconnect-vnc" ]; then
 	VNC_PORT=1
 	[ -n "$CLONE_NO" ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
 	VNC_PORT=:$VNC_PORT
