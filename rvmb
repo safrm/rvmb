@@ -20,6 +20,7 @@ fail() { printf "\n\033[01;31mERROR: $*\033[00m\n" ; exit 1 ; }
 copy_with_progress() {
     if command -v rsync 1>/dev/null 2>&1; then rsync -avI --progress $1 $2 ; else cp -f $1 $2 ; fi
 }
+
 usage() {
     echo "$BASENAME ${VERSION} - Rapid VM builder for qemu-kvm"
     echo " http://safrm.net/projects/rvmo/"
@@ -348,7 +349,13 @@ rvmb_connect_vm_vnc()
 rvmb_backup_image()
 {
     [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
-	tar cvjf ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2 ./$DISK_NAME.$DISK_FORMAT_EXT
+
+    if command -v pv 1>/dev/null 2>&1; then 
+		IM_SIZE=`du -sk ./$DISK_NAME.$DISK_FORMAT_EXT | cut -f 1`
+		tar cvf - ./$DISK_NAME.$DISK_FORMAT_EXT | pv -p -s ${IM_SIZE}k | bzip2 -c > ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2
+	else
+		tar cvjf ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2 ./$DISK_NAME.$DISK_FORMAT_EXT
+	fi
 }
 
 rvmb_mount_image()
