@@ -17,6 +17,7 @@ BuildRequires: jenkins-support-scripts >= 1.2.4
 Requires: qemu 
 Requires: kvm 
 Requires: openssh-clients
+Requires: socat
 
 %description
 Rapid VM builder for qemu-kvm based portable VMs

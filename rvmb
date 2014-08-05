@@ -80,7 +80,7 @@ rvmb_kill_all()
 rvmb_prepare()
 {
 	debug "rvmb_prepare:"
-	REQUIRED_PACKAGES="$REQUIRED_PACKAGES qemu-system-x86 qemu-utils kvm openssh-client"
+	REQUIRED_PACKAGES="$REQUIRED_PACKAGES qemu-system-x86 qemu-utils kvm openssh-client socat"
 	dpkg-query -l $REQUIRED_PACKAGES > /dev/null
 	if [ $? != 0 ]; then
 		sudo apt-get install -y $REQUIRED_PACKAGES  || fail "Failed to install required packages"
