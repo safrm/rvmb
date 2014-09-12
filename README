@@ -51,11 +51,27 @@ VM0$ ssh  192.168.101.2 -p 8024
 rvmb connect-ssh ubuntu-12.04-i386-desktop -c 1
 VM1$ ssh  192.168.101.2 -p 8023
 
-Tested targets:
-	ubuntu-12.04-i386-desktop
-	ubuntu-12.04-x86_64-desktop
-	ubuntu-12.04-x86_64-mini 
-	fedora-20-i586-desktop
-	fedora-20-i586-mini
-	fedora-20-x86_64-desktop
-	fedora-20-x86_64-mini
+Tested targets + ports table:
+8XYZ
+ X .... distro  + arch  0 ub-i386, 1 ub64b ..
+  Y ... release or type
+   Z .. instances (10 is enough)
+
+	ubuntu-12.04-i386-desktop		8001
+	ubuntu-12.04-x86_64-desktop     8101
+	ubuntu-12.04-x86_64-mini        8111
+
+	ubuntu-14.04-i386-desktop       8011
+	ubuntu-14.04-x86_64-desktop		8111
+
+	fedora-20-i586-desktop          8201
+	fedora-20-i586-mini             8211
+    fedora-20-i586-netinst          8221
+	fedora-20-x86_64-desktop        8301
+	fedora-20-x86_64-mini           8361
+
+
+
+
+
+

@@ -1,0 +1,6 @@
+DESCRIPTION='Ubuntu 14.04-x86_64 desktop'
+ISO_URL=http://releases.ubuntu.com/14.04/ubuntu-14.04.1-desktop-amd64.iso
+HOST_SSH_PORT=8111
+DISK_SIZE=8G
+DISK_FORMAT_EXT=raw
+

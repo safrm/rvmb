@@ -1,0 +1,5 @@
+DESCRIPTION='Ubuntu 14.04 i386  desktop'
+ISO_URL=http://releases.ubuntu.com/14.04/ubuntu-14.04.1-desktop-i386.iso
+HOST_SSH_PORT=8011
+DISK_SIZE=6G
+DISK_FORMAT_EXT=raw

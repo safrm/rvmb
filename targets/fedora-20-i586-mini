@@ -1,6 +1,6 @@
 DESCRIPTION='Fedora 20 mini - net install i386'
 ISO_URL=https://dl.fedoraproject.org/pub/fedora/linux/releases/20/Fedora/i386/iso/Fedora-20-i386-netinst.iso
-HOST_SSH_PORT=8240
+HOST_SSH_PORT=8211
 DISK_SIZE=2G
 DISK_FORMAT_EXT=raw
 

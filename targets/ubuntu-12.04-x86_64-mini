@@ -1,6 +1,6 @@
 DESCRIPTION='Ubuntu 12.04-x86_64 minimal'
 ISO_URL=http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/mini.iso
-HOST_SSH_PORT=8090
+HOST_SSH_PORT=8101
 DISK_SIZE=1G
 DISK_FORMAT_EXT=raw
 
