@@ -14,8 +14,7 @@ Autoreq: on
 Autoreqprov: on
 BuildRequires:  appver >= 1.1.1
 BuildRequires: jenkins-support-scripts >= 1.2.4
-Requires: qemu 
-Requires: kvm 
+Requires: qemu-kvm
 Requires: openssh-clients
 Requires: socat
 

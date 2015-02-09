@@ -23,7 +23,7 @@ copy_with_progress() {
 
 usage() {
     echo "$BASENAME ${VERSION} - Rapid VM builder for qemu-kvm"
-    echo " http://safrm.net/projects/rvmo/"
+    echo " http://safrm.net/projects/rvmb/"
     echo "Usage:$BASENAME [COMMAND] [TARGET-FILE] [OPTIONS]..."
     echo " COMMAND ............................ specify step execution "
     echo "  list-targets list-images show-target run-live-iso"
