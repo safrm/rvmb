@@ -1,6 +1,6 @@
 #!/bin/sh
 #Rapid VM builder - http://safrm.net/projects/rvmb
-#author: Miroslav Safr <miroslav.safr@gmail.com> 
+#author: Miroslav Safr <miroslav.safr@gmail.com>
 BINDIR=/usr/bin
 COMPLETION_DIR=/etc/bash_completion.d
 SYSCONFDIR=/etc
@@ -18,15 +18,15 @@ if command -v appver 1>/dev/null 2>&1; then . appver; else APP_SHORT_VERSION=NA 
 #test
 for TEST in $(  grep -r -l -h --exclude-dir=.git --exclude-dir=test "#\!/bin/sh" . )
 do
-		sh -n $TEST
-		if  [ $? != 0 ]; then
-			echo "syntax error in $TEST, exiting.." 
-			exit 1
-		fi
+    sh -n $TEST
+    if  [ $? != 0 ]; then
+        echo "syntax error in $TEST, exiting.."
+        exit 1
+    fi
 done
 
 #update documentation
-jss-docs-update ./doc 
+jss-docs-update ./doc
 
 mkdir -p -m 0755 $BINDIR
 install -m 0777 -v ./rvmb  $BINDIR/

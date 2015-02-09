@@ -1,6 +1,6 @@
 #!/bin/sh
 #Rapid VM builder - http://safrm.net/projects/rvmb
-#author: Miroslav Safr <miroslav.safr@gmail.com> 
+#author: Miroslav Safr <miroslav.safr@gmail.com>
 VERSION=NA
 VERSION_DATE=NA
 
@@ -44,106 +44,106 @@ usage() {
     echo " -vnc ............................... enable vnc on display (:1 + clone)"
     echo " -ng, --nographic ................... disable graphical output"
     echo " -V, --version  ..................... prints version of the scripts"
-	echo " TARGET-FILE ........................ target config file name or full path,"
+    echo " TARGET-FILE ........................ target config file name or full path,"
     echo "                                      targets files are in /etc/rvmb/targets or ./targets"
     echo " "
 }
 
 rvmb_status_all()
 {
-	ls -1 ./*-running 2> /dev/null && echo
-	ps -AF | grep [q]emu	
-	if [ $? != 0 ]; then
-		echo "\033[32mno qemu processes running\033[00m"
-	fi
+    ls -1 ./*-running 2> /dev/null && echo
+    ps -AF | grep [q]emu
+    if [ $? != 0 ]; then
+        echo "\033[32mno qemu processes running\033[00m"
+    fi
 }
 
 rvmb_kill_all()
 {
-	debug "rvmb_kill_all"	
-	rm -fr ./*-running 
-	echo
-	QEMUPIDS=`pgrep [q]emu` 
-	if [ -n "$QEMUPIDS" ]; then
-		echo "killing: $QEMUPIDS"
-		for QEMUPID in "${QEMUPIDS}"
-		do
-				debug "kill $QEMUPID"
-			    kill $QEMUPID
-		done
-	else 	
-		echo "\033[32mno qemu processes running\033[00m"
-	fi
+    debug "rvmb_kill_all"
+    rm -fr ./*-running
+    echo
+    QEMUPIDS=`pgrep [q]emu`
+    if [ -n "$QEMUPIDS" ]; then
+        echo "killing: $QEMUPIDS"
+        for QEMUPID in "${QEMUPIDS}"
+        do
+            debug "kill $QEMUPID"
+            kill $QEMUPID
+        done
+    else
+        echo "\033[32mno qemu processes running\033[00m"
+    fi
 }
 
-#check and install host 
+#check and install host
 rvmb_prepare()
 {
-	debug "rvmb_prepare:"
-	REQUIRED_PACKAGES="$REQUIRED_PACKAGES qemu-system-x86 qemu-utils kvm openssh-client socat"
-	dpkg-query -l $REQUIRED_PACKAGES > /dev/null
-	if [ $? != 0 ]; then
-		sudo apt-get install -y $REQUIRED_PACKAGES  || fail "Failed to install required packages"
-	fi
+    debug "rvmb_prepare:"
+    REQUIRED_PACKAGES="$REQUIRED_PACKAGES qemu-system-x86 qemu-utils kvm openssh-client socat"
+    dpkg-query -l $REQUIRED_PACKAGES > /dev/null
+    if [ $? != 0 ]; then
+        sudo apt-get install -y $REQUIRED_PACKAGES  || fail "Failed to install required packages"
+    fi
 }
 
-#cmdline parsing 
+#cmdline parsing
 while [ $# -gt 0 ]; do
-  case "$1" in
-    create-disk | download-iso | run-live-iso | setup-image | install | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
-        [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
-	DEFAULT_CMD=$1 ;;
-    list-targets)
-		if [ -e ./targets ]; then
-			echo "\033[01;34m`pwd`/targets:\033[33m" ; ls -1 ./targets 2> /dev/null ;
-			echo "\033[0m"
-		fi
-		echo "\033[01;34m$TARGET_DIR:\033[0m"; ls -1 $TARGET_DIR ; exit 0;;
-	list-images)
-		ls -1 *.raw *.img *.qcow 2>/dev/null ; exit 0;;
-	show-target) VERBOSE_FLAG=1 ; DEFAULT_CMD=$1 ;;
-    status-all) rvmb_status_all ; exit ;;
-    kill-all) rvmb_kill_all ; exit ;;
-	prepare-host) rvmb_prepare ; exit ;;
-    -h|--help) usage ; exit 0 ;;
-    -vnc) VNC_FLAG=-vnc ;;
-    -ng|--nographic) NOGRAPHIC_FLAG=-nographic ;;
-    -np|--noprompt) SSH_NO_PROMPT=1 ;;
-    -vv|--debug)    VERBOSE_FLAG=1 ; DEBUG_FLAG=1 ;;
-    -v|--verbose)   VERBOSE_FLAG=1 ;;
- 	-lm|--login-message) shift; SET_LOGIN_MESSAGE=1 ; LOGIN_MESSAGE="$1" ;;
-    -c|--clone) shift;
-        CLONE_NO=$1 
-		if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then
-			debug "integer CLONE_NO=$CLONE_NO ok"
-		else
-			fail "$CLONE_NO is not valid number" 
-		fi ;;
-    -m|--memory) shift;
-        MEMORY=$1 
-		if [ $MEMORY -ne 0 -o $MEMORY -eq 0 2> /dev/null ]; then
-			debug "integer MEMORY=$MEMORY ok"
-		else
-			fail "$MEMORY is not valid number" 
-		fi ;;
-    -u|--user) shift; VMUSER=$1 ;;
-    -a|--authorize-ssh) AUTHORIZE_SSH=1 ;;
-    *)      
-		[ -n "$TARGET_FILE" ] && fail "Target can be only one ($TARGET_FILE)"
-        TARGET_FILE=$1 
-		if [ $(echo $TARGET_FILE | head -c1) = '/' -a -f $TARGET_FILE ]; then 
-			:
-		#local file first
-		elif [ -f ./targets/$TARGET_FILE ]; then
-	        TARGET_FILE=./targets/$TARGET_FILE
-		#targets file second
-		elif [ -f $TARGET_DIR/$TARGET_FILE ]; then 
-			TARGET_FILE=$TARGET_DIR/$TARGET_FILE
-		else 
-			fail "Not valid target name: $TARGET_FILE, try rvmb list-targets" 
-		fi ;;
-  esac
-  shift
+    case "$1" in
+        create-disk | download-iso | run-live-iso | setup-image | install | start | stop | status | connect-ssh | connect-vnc | backup-image | mount-image | umount-image | chroot-image)
+            [ -z "$DEFAULT_CMD" ] || fail "Only one command can be run at the time"
+        DEFAULT_CMD=$1 ;;
+        list-targets)
+            if [ -e ./targets ]; then
+                echo "\033[01;34m`pwd`/targets:\033[33m" ; ls -1 ./targets 2> /dev/null ;
+                echo "\033[0m"
+            fi
+        echo "\033[01;34m$TARGET_DIR:\033[0m"; ls -1 $TARGET_DIR ; exit 0;;
+        list-images)
+        ls -1 *.raw *.img *.qcow 2>/dev/null ; exit 0;;
+        show-target) VERBOSE_FLAG=1 ; DEFAULT_CMD=$1 ;;
+        status-all) rvmb_status_all ; exit ;;
+        kill-all) rvmb_kill_all ; exit ;;
+        prepare-host) rvmb_prepare ; exit ;;
+        -h|--help) usage ; exit 0 ;;
+        -vnc) VNC_FLAG=-vnc ;;
+        -ng|--nographic) NOGRAPHIC_FLAG=-nographic ;;
+        -np|--noprompt) SSH_NO_PROMPT=1 ;;
+        -vv|--debug)    VERBOSE_FLAG=1 ; DEBUG_FLAG=1 ;;
+        -v|--verbose)   VERBOSE_FLAG=1 ;;
+        -lm|--login-message) shift; SET_LOGIN_MESSAGE=1 ; LOGIN_MESSAGE="$1" ;;
+        -c|--clone) shift;
+            CLONE_NO=$1
+            if [ $CLONE_NO -ne 0 -o $CLONE_NO -eq 0 2> /dev/null ]; then
+                debug "integer CLONE_NO=$CLONE_NO ok"
+            else
+                fail "$CLONE_NO is not valid number"
+        fi ;;
+        -m|--memory) shift;
+            MEMORY=$1
+            if [ $MEMORY -ne 0 -o $MEMORY -eq 0 2> /dev/null ]; then
+                debug "integer MEMORY=$MEMORY ok"
+            else
+                fail "$MEMORY is not valid number"
+        fi ;;
+        -u|--user) shift; VMUSER=$1 ;;
+        -a|--authorize-ssh) AUTHORIZE_SSH=1 ;;
+        *)
+            [ -n "$TARGET_FILE" ] && fail "Target can be only one ($TARGET_FILE)"
+            TARGET_FILE=$1
+            if [ $(echo $TARGET_FILE | head -c1) = '/' -a -f $TARGET_FILE ]; then
+                :
+                #local file first
+                elif [ -f ./targets/$TARGET_FILE ]; then
+                TARGET_FILE=./targets/$TARGET_FILE
+                #targets file second
+                elif [ -f $TARGET_DIR/$TARGET_FILE ]; then
+                TARGET_FILE=$TARGET_DIR/$TARGET_FILE
+            else
+                fail "Not valid target name: $TARGET_FILE, try rvmb list-targets"
+        fi ;;
+    esac
+    shift
 done
 
 #read configuration
@@ -152,277 +152,277 @@ done
 DISK_NAME=`basename $TARGET_FILE`
 echo "Using target configuration \033[01;33m$DISK_NAME\033[00m ($CLONE_NO) from $TARGET_FILE"
 echo "Description: $DESCRIPTION"
-verbose "`cat $TARGET_FILE` \n" 
+verbose "`cat $TARGET_FILE` \n"
 
 #fixes for clonned environments
 BASE_DISK_NAME=$DISK_NAME
 if [ $CLONE_NO -ne 0 ]; then
-	DISK_NAME=$DISK_NAME$CLONE_NO
+    DISK_NAME=$DISK_NAME$CLONE_NO
     HOST_SSH_PORT=$(($HOST_SSH_PORT + $CLONE_NO)) ;
-	verbose "CLONNED MODIFICATIONS:\nDISK_NAME=$DISK_NAME\nHOST_SSH_PORT=$HOST_SSH_PORT"
+    verbose "CLONNED MODIFICATIONS:\nDISK_NAME=$DISK_NAME\nHOST_SSH_PORT=$HOST_SSH_PORT"
 fi
 MONITOR_FILE=./$DISK_NAME-running
 verbose "MONITOR_FILE=$MONITOR_FILE"
 if [ -n "$VNC_FLAG" -o "x$DEFAULT_CMD" = "xconnect-vnc" ]; then
-	VNC_PORT=1
-	[ $CLONE_NO -ne 0 ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
-	VNC_PORT=:$VNC_PORT
-	echo "VNC OPTIONS: $VNC_FLAG $VNC_PORT"
-	REQUIRED_PACKAGES="$REQUIRED_PACKAGES xtightvncviewer"
+    VNC_PORT=1
+    [ $CLONE_NO -ne 0 ] && VNC_PORT=$(($VNC_PORT + $CLONE_NO)) ;
+    VNC_PORT=:$VNC_PORT
+    echo "VNC OPTIONS: $VNC_FLAG $VNC_PORT"
+    REQUIRED_PACKAGES="$REQUIRED_PACKAGES xtightvncviewer"
 fi
 
 rvmb_show_target()
 {
-	exit 0;
+    exit 0;
 }
 
 rvmb_installation()
 {
-	debug "rvmb_installation:"
-	rvmb_prepare
-	rvmb_create_disk
-	#copied ready clone
-	if [ $? -eq 2 ]; then
-	  rvmb_start_vm
-	else 
-	  rvmb_setup_image	
+    debug "rvmb_installation:"
+    rvmb_prepare
+    rvmb_create_disk
+    #copied ready clone
+    if [ $? -eq 2 ]; then
+        rvmb_start_vm
+    else
+        rvmb_setup_image
     fi
 }
 
-rvmb_run_live_iso() 
+rvmb_run_live_iso()
 {
-	debug "rvmb_run_live_iso:"
-	rvmb_prepare
-	rvmb_download_iso
-	echo "Runing live iso $ISO_FILE_LOCAL"
-	qemu-system-x86_64 -name "live $ISO_FILE_LOCAL" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+    debug "rvmb_run_live_iso:"
+    rvmb_prepare
+    rvmb_download_iso
+    echo "Runing live iso $ISO_FILE_LOCAL"
+    qemu-system-x86_64 -name "live $ISO_FILE_LOCAL" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
 }
 
 #1, not overrwite, 2 -clonned
 rvmb_create_disk()
 {
-	debug "rvmb_create_disk:"
-	if [ -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
-		echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists."
-		while true
-	    do
-    	    KEY=$(bash -c 'read -p " Do you want to overwrite it (abort) [y/N/a] " -n 1 ans;echo "$ans"')
-    	    echo ""
-    	    case $KEY in
-    		    y|Y|YES|yes|Yes) verbose "YES" ;  break ;;
-    		    n|N|no|NO|No) verbose "NO" ; return 1 ;;
-    		    a|abort|*)
-        		    echo "Aborting - you entered $KEY" ;  exit 1 ;;      
-		    esac
-	    done
-	fi
-	#clone or create
-	if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a $CLONE_NO -ne 0 ]; then
-		verbose "Copying image: $BASE_DISK_NAME.$DISK_FORMAT_EXT to $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
-copy_with_progress $BASE_DISK_NAME.$DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT 
-		return 2;
-	else
-		verbose "Creating image: $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
-		qemu-img create -f $DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE || fail "Image creation failed"
-	fi
+    debug "rvmb_create_disk:"
+    if [ -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
+        echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists."
+        while true
+        do
+            KEY=$(bash -c 'read -p " Do you want to overwrite it (abort) [y/N/a] " -n 1 ans;echo "$ans"')
+            echo ""
+            case $KEY in
+                y|Y|YES|yes|Yes) verbose "YES" ;  break ;;
+                n|N|no|NO|No) verbose "NO" ; return 1 ;;
+                a|abort|*)
+                echo "Aborting - you entered $KEY" ;  exit 1 ;;
+            esac
+        done
+    fi
+    #clone or create
+    if [ -e $BASE_DISK_NAME.$DISK_FORMAT_EXT -a $CLONE_NO -ne 0 ]; then
+        verbose "Copying image: $BASE_DISK_NAME.$DISK_FORMAT_EXT to $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
+        copy_with_progress $BASE_DISK_NAME.$DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT
+        return 2;
+    else
+        verbose "Creating image: $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE"
+        qemu-img create -f $DISK_FORMAT_EXT $DISK_NAME.$DISK_FORMAT_EXT $DISK_SIZE || fail "Image creation failed"
+    fi
 }
 
 rvmb_download_iso()
 {
-debug "rvmb_download_iso: Iso image url: $ISO_URL"
-#-q=no output, -i=insensitive, -e=regexp
-if echo $ISO_URL | grep -q -i -e "^\(ftp\|http\|https\):.*" ; then
-	wget -N $ISO_URL || fail "Iso file download failed "
-    ISO_FILE_LOCAL="${ISO_URL##*/}"
-else
-	if [ -f $ISO_URL ]; then	
-		debug "Local file $ISO_URL ready"
-		ISO_FILE_LOCAL="$ISO_URL"
-	else	
-		fail "Local file $ISO_URL does not exist"
-	fi
-fi
-
+    debug "rvmb_download_iso: Iso image url: $ISO_URL"
+    #-q=no output, -i=insensitive, -e=regexp
+    if echo $ISO_URL | grep -q -i -e "^\(ftp\|http\|https\):.*" ; then
+        wget -N $ISO_URL || fail "Iso file download failed "
+        ISO_FILE_LOCAL="${ISO_URL##*/}"
+    else
+        if [ -f $ISO_URL ]; then
+            debug "Local file $ISO_URL ready"
+            ISO_FILE_LOCAL="$ISO_URL"
+        else
+            fail "Local file $ISO_URL does not exist"
+        fi
+    fi
+    
 }
 
 rvmb_setup_image()
 {
-	debug "rvmb_setup_image:"
-	rvmb_download_iso
-	debug "image:./$DISK_NAME.$DISK_FORMAT_EXT iso:	$ISO_FILE_LOCAL"
-	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
-	[ -e $ISO_FILE_LOCAL ] || fail "Iso file $ISO_FILE_LOCAL does not exist "
-	[ -e $SHARE_DIR ] || mkdir -p $SHARE_DIR
-
-	qemu-system-x86_64 -name "$DISK_NAME setup" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
-
+    debug "rvmb_setup_image:"
+    rvmb_download_iso
+    debug "image:./$DISK_NAME.$DISK_FORMAT_EXT iso:	$ISO_FILE_LOCAL"
+    [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
+    [ -e $ISO_FILE_LOCAL ] || fail "Iso file $ISO_FILE_LOCAL does not exist "
+    [ -e $SHARE_DIR ] || mkdir -p $SHARE_DIR
+    
+    qemu-system-x86_64 -name "$DISK_NAME setup" $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -boot d -cdrom $ISO_FILE_LOCAL -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=./$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait
+    
 }
 
 #run ready VM
-rvmb_start_vm() 
+rvmb_start_vm()
 {
-	debug "rvmb_start_vm"
-	[ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
-	#run
-	qemu-system-x86_64 -name $DISK_NAME $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
-
-	#sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
+    debug "rvmb_start_vm"
+    [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
+    #run
+    qemu-system-x86_64 -name $DISK_NAME $VNC_FLAG $VNC_PORT $NOGRAPHIC_FLAG -m $MEMORY -hda $DISK_NAME.$DISK_FORMAT_EXT -boot c -enable-kvm -smp 2 -net nic,model=virtio -net user,net=192.168.101.0/24,hostfwd=tcp::$HOST_SSH_PORT-:22 -drive file=$DISK_NAME.$DISK_FORMAT_EXT,if=virtio -fsdev  local,security_model=none,id=fsdev0,path=$SHARE_DIR -device virtio-9p-pci,id=fs0,fsdev=fsdev0,mount_tag=hostshare -monitor unix:$MONITOR_FILE,server,nowait &
+    
+    #sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
 }
 
 rvmb_stop_vm()
 {
-	debug "rvmb_stop_vm"
-	#using qemu
-	debug "Stopping: $MONITOR_FILE"
-	echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE
-	sleep 5;	
-	echo 'quit' | socat - UNIX-CONNECT:$MONITOR_FILE	
-	if [ -n "$MONITOR_FILE" -a -e $MONITOR_FILE ]; then
-		echo " monitor file exits: $MONITOR_FILE, removing file.."
-		rm "$MONITOR_FILE"
-	fi
+    debug "rvmb_stop_vm"
+    #using qemu
+    debug "Stopping: $MONITOR_FILE"
+    echo 'system_powerdown' | socat - UNIX-CONNECT:$MONITOR_FILE
+    sleep 5;
+    echo 'quit' | socat - UNIX-CONNECT:$MONITOR_FILE
+    if [ -n "$MONITOR_FILE" -a -e $MONITOR_FILE ]; then
+        echo " monitor file exits: $MONITOR_FILE, removing file.."
+        rm "$MONITOR_FILE"
+    fi
 }
 
 
 rvmb_status()
 {
-	debug "rvmb_status"
-	RUNNING=0
-	if [ -e $MONITOR_FILE ]; then
-		verbose " monitor file exits: $MONITOR_FILE"
-		RUNNING=1
-		echo 'info status ' | socat - UNIX-CONNECT:$MONITOR_FILE	
-	else
-		verbose " monitor file does not exits: $MONITOR_FILE"
-		RUNNING_PROBLEM="monitor file does not exits "
-	fi
-	if [ $(pgrep -f $DISK_NAME.$DISK_FORMAT_EXT) ]; then
-		verbose " image $DISK_NAME.$DISK_FORMAT_EXT is running"
-		RUNNING=1
-	else
-		verbose " image $DISK_NAME.$DISK_FORMAT_EXT is not running"
-		RUNNING_PROBLEM="${RUNNING_PROBLEM}process with image is not running"
-	fi
-	if [ $RUNNING -eq 1 ]; then
-		echo "\033[32running\033[00m"
-		if [ -n "$RUNNING_PROBLEM" ]; then
-			echo "$RUNNING_PROBLEM"
-			exit 1;
-		fi
-	else
-		echo "\033[32mnot running\033[00m"
-	fi
+    debug "rvmb_status"
+    RUNNING=0
+    if [ -e $MONITOR_FILE ]; then
+        verbose " monitor file exits: $MONITOR_FILE"
+        RUNNING=1
+        echo 'info status ' | socat - UNIX-CONNECT:$MONITOR_FILE
+    else
+        verbose " monitor file does not exits: $MONITOR_FILE"
+        RUNNING_PROBLEM="monitor file does not exits "
+    fi
+    if [ $(pgrep -f $DISK_NAME.$DISK_FORMAT_EXT) ]; then
+        verbose " image $DISK_NAME.$DISK_FORMAT_EXT is running"
+        RUNNING=1
+    else
+        verbose " image $DISK_NAME.$DISK_FORMAT_EXT is not running"
+        RUNNING_PROBLEM="${RUNNING_PROBLEM}process with image is not running"
+    fi
+    if [ $RUNNING -eq 1 ]; then
+        echo "\033[32running\033[00m"
+        if [ -n "$RUNNING_PROBLEM" ]; then
+            echo "$RUNNING_PROBLEM"
+            exit 1;
+        fi
+    else
+        echo "\033[32mnot running\033[00m"
+    fi
 }
 
 
 rvmb_connect_vm_ssh()
 {
-	DISTRO_LETTER=$(echo $DISK_NAME | head -c1)
-	PNAME="\\\\033[01\;33mVM-${DISTRO_LETTER}${CLONE_NO}-${HOST_SSH_PORT}:\\\\033[0m"
-	verbose "VM-${DISTRO_LETTER}${HOST_SSH_PORT}: VMUSER:${VMUSER:-user} PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
-	verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
-	if [ -n "$AUTHORIZE_SSH" ]; then
+    DISTRO_LETTER=$(echo $DISK_NAME | head -c1)
+    PNAME="\\\\033[01\;33mVM-${DISTRO_LETTER}${CLONE_NO}-${HOST_SSH_PORT}:\\\\033[0m"
+    verbose "VM-${DISTRO_LETTER}${HOST_SSH_PORT}: VMUSER:${VMUSER:-user} PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
+    verbose "ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
+    if [ -n "$AUTHORIZE_SSH" ]; then
         echo "Authorizing ssh-pairs for ${VMUSER:-user}:"
         verbose "ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT"
-        if command -v ssh-copy-id 1>/dev/null 2>&1; then 
-            ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
+        if command -v ssh-copy-id 1>/dev/null 2>&1; then
+            ssh-copy-id ${VMUSER:-user}@localhost -p $HOST_SSH_PORT
         else
             cat ~/.ssh/id_rsa.pub | ssh ${VMUSER:-user}@localhost -p $HOST_SSH_PORT "cat >> ~/.ssh/authorized_keys"
         fi
-	fi
-	if [ -n "$SET_LOGIN_MESSAGE" ]; then
-	   verbose "Setting VM .bashrc message: $SET_LOGIN_MESSAGE"
-	   ssh ${VMUSER:-user}@localhost -p $HOST_SSH_PORT -t "(  grep -q ".bashrc_message" ~/.bashrc ) || ( echo "grep -E  \\\".*\\\" ./.bashrc_message --color=always" >> ./.bashrc ) ; echo -en "$LOGIN_MESSAGE" > ~/.bashrc_message "
-	fi
-
-	if [ -n "$SSH_NO_PROMPT" ]; then
-		ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT 
-	else
-		#on-fly prompt changes work only if the PS is not defined later (fedora yes, but ubuntu no)
-		#ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "export PS1=\"$PNAME[\\u@\\h \\W]\\$ \" ; exec bash"
- 	    ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "cp -f ~/.bashrc ~/.bashrc.n &>/dev/null ; ( echo "export PS1=\\\"$PNAME[\\\\u@\\\\h \\\\W]\\\\$ \\\"" >> ~/.bashrc.n ); exec bash --rcfile ~/.bashrc.n"
-	fi
+    fi
+    if [ -n "$SET_LOGIN_MESSAGE" ]; then
+        verbose "Setting VM .bashrc message: $SET_LOGIN_MESSAGE"
+        ssh ${VMUSER:-user}@localhost -p $HOST_SSH_PORT -t "(  grep -q ".bashrc_message" ~/.bashrc ) || ( echo "grep -E  \\\".*\\\" ./.bashrc_message --color=always" >> ./.bashrc ) ; echo -en "$LOGIN_MESSAGE" > ~/.bashrc_message "
+    fi
+    
+    if [ -n "$SSH_NO_PROMPT" ]; then
+        ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT
+    else
+        #on-fly prompt changes work only if the PS is not defined later (fedora yes, but ubuntu no)
+        #ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "export PS1=\"$PNAME[\\u@\\h \\W]\\$ \" ; exec bash"
+        ssh -X ${VMUSER:-user}@localhost -p $HOST_SSH_PORT  -t "cp -f ~/.bashrc ~/.bashrc.n &>/dev/null ; ( echo "export PS1=\\\"$PNAME[\\\\u@\\\\h \\\\W]\\\\$ \\\"" >> ~/.bashrc.n ); exec bash --rcfile ~/.bashrc.n"
+    fi
 }
 
 rvmb_connect_vm_vnc()
 {
-	verbose "vncviewer -via $USER@localhost  localhost$VNC_PORT"
-	vncviewer -via $USER@localhost  localhost$VNC_PORT
+    verbose "vncviewer -via $USER@localhost  localhost$VNC_PORT"
+    vncviewer -via $USER@localhost  localhost$VNC_PORT
 }
 
 rvmb_backup_image()
 {
     [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
-
-    if command -v pv 1>/dev/null 2>&1; then 
-		IM_SIZE=`du -sk ./$DISK_NAME.$DISK_FORMAT_EXT | cut -f 1`
-		tar cvf - ./$DISK_NAME.$DISK_FORMAT_EXT | pv -p -s ${IM_SIZE}k | bzip2 -c > ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2
-	else
-		tar cvjf ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2 ./$DISK_NAME.$DISK_FORMAT_EXT
-	fi
+    
+    if command -v pv 1>/dev/null 2>&1; then
+        IM_SIZE=`du -sk ./$DISK_NAME.$DISK_FORMAT_EXT | cut -f 1`
+        tar cvf - ./$DISK_NAME.$DISK_FORMAT_EXT | pv -p -s ${IM_SIZE}k | bzip2 -c > ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2
+    else
+        tar cvjf ./$DISK_NAME.$DISK_FORMAT_EXT_$TS.tar.bz2 ./$DISK_NAME.$DISK_FORMAT_EXT
+    fi
 }
 
 rvmb_mount_image()
 {
-	MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
-	MOUNTED=`mount |  grep "$DISK_NAME.$DISK_FORMAT_EXT-mount "`
-	if [ -z "$MOUNTED" ]; then
-		[ -d $MOUNT_DIR ] || mkdir $MOUNT_DIR
-		sudo mount -o loop,offset=$((512*2048)) ./$DISK_NAME.$DISK_FORMAT_EXT $MOUNT_DIR -t ext4 && echo "mounted ok"
-	else 
-		verbose "already mounted to $DISK_NAME.$DISK_FORMAT_EXT-mount"
-	fi
+    MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
+    MOUNTED=`mount |  grep "$DISK_NAME.$DISK_FORMAT_EXT-mount "`
+    if [ -z "$MOUNTED" ]; then
+        [ -d $MOUNT_DIR ] || mkdir $MOUNT_DIR
+        sudo mount -o loop,offset=$((512*2048)) ./$DISK_NAME.$DISK_FORMAT_EXT $MOUNT_DIR -t ext4 && echo "mounted ok"
+    else
+        verbose "already mounted to $DISK_NAME.$DISK_FORMAT_EXT-mount"
+    fi
 }
 
 rvmb_umount_image()
 {
-	MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
-	MOUNTED=`mount |  grep "$MOUNT_DIR "`
-	if [ -n "$MOUNTED" ]; then
-		MOUNTEDPROC=`mount |  grep "$MOUNT_DIR/proc "`
-		if [ -n "$MOUNTEDPROC" ]; then
-			sudo umount $MOUNT_DIR/proc && echo "proc unmounted ok"	
-			sleep 1
-		fi
-		sudo umount $MOUNT_DIR && echo "unmounted image ok"
-	else
-		echo "Image:./$DISK_NAME.$DISK_FORMAT_EXT is not mounted"
-	fi
+    MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
+    MOUNTED=`mount |  grep "$MOUNT_DIR "`
+    if [ -n "$MOUNTED" ]; then
+        MOUNTEDPROC=`mount |  grep "$MOUNT_DIR/proc "`
+        if [ -n "$MOUNTEDPROC" ]; then
+            sudo umount $MOUNT_DIR/proc && echo "proc unmounted ok"
+            sleep 1
+        fi
+        sudo umount $MOUNT_DIR && echo "unmounted image ok"
+    else
+        echo "Image:./$DISK_NAME.$DISK_FORMAT_EXT is not mounted"
+    fi
 }
 
 
 rvmb_chroot_image()
 {
-	rvmb_mount_image
-	sudo mount --bind /proc $MOUNT_DIR/proc
-	sudo chroot $MOUNT_DIR su -c sh root
+    rvmb_mount_image
+    sudo mount --bind /proc $MOUNT_DIR/proc
+    sudo chroot $MOUNT_DIR su -c sh root
 }
 
 case $DEFAULT_CMD in
-  show-target) rvmb_show_target ;;
-  create-disk) rvmb_create_disk ;;
-  download-iso) rvmb_download_iso ;;
-  run-live-iso) rvmb_run_live_iso ;;
-  setup-image) rvmb_setup_image ;;
-  install) rvmb_installation ;;
-  start) rvmb_start_vm ;;
-  status) rvmb_status ;;
-  stop) rvmb_stop_vm ;;
-  connect-ssh) rvmb_connect_vm_ssh ;;
-  connect-vnc) rvmb_connect_vm_vnc ;;
-  mount-image) rvmb_mount_image ;;
-  umount-image) rvmb_umount_image ;;
-  backup-image) rvmb_backup_image ;;
-  chroot-image) rvmb_chroot_image ;;
-  #automatic target: empty=install, ok=start, running=connect-ssh
-  *) 
-	if [ ! -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
-		debug "$DISK_NAME.$DISK_FORMAT_EXT does not exist"
-		rvmb_installation ;
-	else
-		debug "$DISK_NAME.$DISK_FORMAT_EXT exists"
-		# check that runs?
-		rvmb_start_vm ;
-	fi
+    show-target) rvmb_show_target ;;
+    create-disk) rvmb_create_disk ;;
+    download-iso) rvmb_download_iso ;;
+    run-live-iso) rvmb_run_live_iso ;;
+    setup-image) rvmb_setup_image ;;
+    install) rvmb_installation ;;
+    start) rvmb_start_vm ;;
+    status) rvmb_status ;;
+    stop) rvmb_stop_vm ;;
+    connect-ssh) rvmb_connect_vm_ssh ;;
+    connect-vnc) rvmb_connect_vm_vnc ;;
+    mount-image) rvmb_mount_image ;;
+    umount-image) rvmb_umount_image ;;
+    backup-image) rvmb_backup_image ;;
+    chroot-image) rvmb_chroot_image ;;
+    #automatic target: empty=install, ok=start, running=connect-ssh
+    *)
+        if [ ! -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
+            debug "$DISK_NAME.$DISK_FORMAT_EXT does not exist"
+            rvmb_installation ;
+        else
+            debug "$DISK_NAME.$DISK_FORMAT_EXT exists"
+            # check that runs?
+            rvmb_start_vm ;
+        fi
 esac
 
