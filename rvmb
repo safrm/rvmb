@@ -14,8 +14,8 @@ CLONE_NO=0
 
 #helpers
 alias echo="/bin/echo -e"
-debug(){ [ ${DEBUG_FLAG:-0} -eq 0 ] || echo "Running($#): $*" ; }
-verbose(){ [ ${VERBOSE_FLAG:-0} -eq 0 ] || echo "\033[36m$*\033[00m" ; }
+debug(){ [ ${DEBUG_FLAG:-0 } -eq 0 ] || echo "Running($#): $*" ; }
+verbose(){ [ ${VERBOSE_FLAG:-0 } -eq 0 ] || echo "\033[36m$*\033[00m" ; }
 fail() { printf "\n\033[01;31mERROR: $*\033[00m\n" ; exit 1 ; }
 copy_with_progress() {
     if command -v rsync 1>/dev/null 2>&1 ; then rsync -avI --progress $1 $2 ; else cp -f $1 $2 ; fi
@@ -49,8 +49,7 @@ usage() {
     echo " "
 }
 
-rvmb_status_all()
-{
+rvmb_status_all() {
     ls -1 ./*-running 2> /dev/null && echo
     ps -AF | grep [q]emu
     if [ $? != 0 ]; then
@@ -58,8 +57,7 @@ rvmb_status_all()
     fi
 }
 
-rvmb_kill_all()
-{
+rvmb_kill_all() {
     debug "rvmb_kill_all"
     rm -fr ./*-running
     echo
@@ -77,8 +75,7 @@ rvmb_kill_all()
 }
 
 #check and install host
-rvmb_prepare()
-{
+rvmb_prepare() {
     debug "rvmb_prepare:"
     REQUIRED_PACKAGES="$REQUIRED_PACKAGES qemu-system-x86 qemu-utils kvm openssh-client socat"
     dpkg-query -l $REQUIRED_PACKAGES > /dev/null
@@ -168,13 +165,11 @@ if [ -n "$VNC_FLAG" -o "x$DEFAULT_CMD" = "xconnect-vnc" ]; then
     REQUIRED_PACKAGES="$REQUIRED_PACKAGES xtightvncviewer"
 fi
 
-rvmb_show_target()
-{
+rvmb_show_target() {
     exit 0
 }
 
-rvmb_installation()
-{
+rvmb_installation() {
     debug "rvmb_installation:"
     rvmb_prepare
     rvmb_create_disk
@@ -186,8 +181,7 @@ rvmb_installation()
     fi
 }
 
-rvmb_run_live_iso()
-{
+rvmb_run_live_iso() {
     debug "rvmb_run_live_iso:"
     rvmb_prepare
     rvmb_download_iso
@@ -196,8 +190,7 @@ rvmb_run_live_iso()
 }
 
 #1, not overrwite, 2 -clonned
-rvmb_create_disk()
-{
+rvmb_create_disk() {
     debug "rvmb_create_disk:"
     if [ -e $DISK_NAME.$DISK_FORMAT_EXT ]; then
         echo "Disk $DISK_NAME.$DISK_FORMAT_EXT exists."
@@ -224,8 +217,7 @@ rvmb_create_disk()
     fi
 }
 
-rvmb_download_iso()
-{
+rvmb_download_iso() {
     debug "rvmb_download_iso: Iso image url: $ISO_URL"
     #-q=no output, -i=insensitive, -e=regexp
     if echo $ISO_URL | grep -q -i -e "^\(ftp\|http\|https\):.*" ; then
@@ -241,8 +233,7 @@ rvmb_download_iso()
     fi
 }
 
-rvmb_setup_image()
-{
+rvmb_setup_image() {
     debug "rvmb_setup_image:"
     rvmb_download_iso
     debug "image:./$DISK_NAME.$DISK_FORMAT_EXT iso:	$ISO_FILE_LOCAL"
@@ -254,8 +245,7 @@ rvmb_setup_image()
 }
 
 #run ready VM
-rvmb_start_vm()
-{
+rvmb_start_vm() {
     debug "rvmb_start_vm"
     [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
     #run
@@ -264,8 +254,7 @@ rvmb_start_vm()
     #sudo mount -t 9p -o trans=virtio,version=9p2000.L,posixacl,cache=loose hostshare /share
 }
 
-rvmb_stop_vm()
-{
+rvmb_stop_vm() {
     debug "rvmb_stop_vm"
     #using qemu
     debug "Stopping: $MONITOR_FILE"
@@ -279,8 +268,7 @@ rvmb_stop_vm()
 }
 
 
-rvmb_status()
-{
+rvmb_status() {
     debug "rvmb_status"
     RUNNING=0
     if [ -e $MONITOR_FILE ]; then
@@ -310,8 +298,7 @@ rvmb_status()
 }
 
 
-rvmb_connect_vm_ssh()
-{
+rvmb_connect_vm_ssh() {
     DISTRO_LETTER=$(echo $DISK_NAME | head -c1)
     PNAME="\\\\033[01\;33mVM-${DISTRO_LETTER}${CLONE_NO}-${HOST_SSH_PORT}:\\\\033[0m"
     verbose "VM-${DISTRO_LETTER}${HOST_SSH_PORT}: VMUSER:${VMUSER:-user} PORT:$HOST_SSH_PORT AUTHORIZE_SSH:$AUTHORIZE_SSH"
@@ -339,14 +326,12 @@ rvmb_connect_vm_ssh()
     fi
 }
 
-rvmb_connect_vm_vnc()
-{
+rvmb_connect_vm_vnc() {
     verbose "vncviewer -via $USER@localhost  localhost$VNC_PORT"
     vncviewer -via $USER@localhost  localhost$VNC_PORT
 }
 
-rvmb_backup_image()
-{
+rvmb_backup_image() {
     [ -e ./$DISK_NAME.$DISK_FORMAT_EXT ] || fail "Image ./$DISK_NAME.$DISK_FORMAT_EXT does not exist"
 
     if command -v pv 1>/dev/null 2>&1 ; then
@@ -357,8 +342,7 @@ rvmb_backup_image()
     fi
 }
 
-rvmb_mount_image()
-{
+rvmb_mount_image() {
     MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
     MOUNTED=`mount |  grep "$DISK_NAME.$DISK_FORMAT_EXT-mount "`
     if [ -z "$MOUNTED" ]; then
@@ -369,8 +353,7 @@ rvmb_mount_image()
     fi
 }
 
-rvmb_umount_image()
-{
+rvmb_umount_image() {
     MOUNT_DIR=./$DISK_NAME.$DISK_FORMAT_EXT-mount
     MOUNTED=`mount |  grep "$MOUNT_DIR "`
     if [ -n "$MOUNTED" ]; then
@@ -386,8 +369,7 @@ rvmb_umount_image()
 }
 
 
-rvmb_chroot_image()
-{
+rvmb_chroot_image() {
     rvmb_mount_image
     sudo mount --bind /proc $MOUNT_DIR/proc
     sudo chroot $MOUNT_DIR su -c sh root
